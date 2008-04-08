@@ -1,0 +1,3 @@
+This folder contains dependencies necessary to build or test DataflowEngine.
+
+Only the binaries are supplied, but each folder should contain a link back to its original source code repository.
