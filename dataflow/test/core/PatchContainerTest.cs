@@ -54,7 +54,6 @@ public class PatchTests {
         }
 
         public void Execute() {
-            Console.WriteLine("HERE");
             output.Value = 99;
         }
     }

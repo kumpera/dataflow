@@ -10,43 +10,56 @@ See AUTHORS and LICENSE for details.
   <description>Builds the Dataflow engine and patches.</description>
 
   <property name="debug" value="true" overwrite="false" />
-
+  <property name="appname" value="dataflow" overwrite="false" />
+  <property name="bindir" value="bin" overwrite="false" />
+  <property name="exename" value="${bindir}/${appname}.exe" overwrite="false" />
+  <property name="nunit-console" value="dep/nunit-2.4.7-net-2.0/bin/nunit-console.exe" overwrite="false"/>
+  
   <target name="clean" description="remove all generated files">
-    <delete dir="bin" failonerror="true" />
+    <delete dir="${bindir}" failonerror="true" />
+    <mkdir dir="${bindir}"/>    
   </target>
 
-  <target name="build" description="compiles the source code">
-    <mkdir dir="bin"/>
-    <csc target="exe" output="bin/dataflow.exe" debug="${debug}">
+  <target name="build" depends="clean, compile, copy-dependencies, test" description="compiles the source code">
+  </target>
+  
+  <target name="compile" description="compiles the source code">
+    <csc target="exe" output="${exename}" debug="${debug}">
       <sources>
-        <include name="dataflow/src/**.cs" />
-      </sources>
-      <references>
-        <include name="System.dll"/>
-        <include name="Mono.C5.dll"/>
-      </references>
-    </csc>
-
-    <csc target="exe" output="bin/dataflow-tests.exe" debug="${debug}">
-      <sources>
-        <include name="dataflow/src/**.cs" />
-        <include name="dataflow/test/**.cs" />
+        <include name="${appname}/src/**.cs" />
+        <include name="${appname}/test/**.cs" />
       </sources>
       
       <references failonempty="true">
-
-        <include name="System.dll"/>
         <include name="Mono.C5.dll"/>
-
-        <include name="../dep/nunit-2.4.7-net-2.0/bin/nunit.core.dll"/>
-        <include name="../dep/nunit-2.4.7-net-2.0/bin/nunit.framework.dll"/>
-
-        <include name="../dep/nmock2-2.0.0.44-net-2.0/bin/NMock2.dll"/>
-        <include name="../dep/nmock2-2.0.0.44-net-2.0/bin/NMock2.Test.dll"/>
-        <include name="../dep/nmock2-2.0.0.44-net-2.0/bin/NMock2.AcceptanceTests.dll"/>
-        
+        <include name="${appname}/lib/**/*.dll"/>        
       </references>
     </csc>
-    
   </target>
+  
+  <target name="copy-dependencies" description="copies libs to output dir">
+    <copy todir="${bindir}">
+      <fileset basedir="${appname}/lib">
+        <include name="*.dll"/>
+      </fileset>
+    </copy>
+  </target>    
+
+  <target name="test" description="runs tests">
+    <delete dir="${bindir}/test-results" failonerror="true" />
+    <mkdir dir="${bindir}/test-results"/>
+    
+    <exec program="${nunit-console}" managed="true">
+      <arg file="${exename}" />
+      <arg value="-labels" />
+      <arg value="-xml=${bindir}/test-results/results.xml" />
+    </exec>
+    
+    <delete verbose="true">
+      <fileset>
+        <include name="???NUnitPrimaryTrace.txt"/>
+      </fileset>
+    </delete>
+  </target>
+
 </project>
