@@ -1,0 +1,4 @@
+This is an implementation of a dataflow oriented language like PureData or 
+QuartzComposer, but aiming to be general purpoise.
+
+Code is written in C# and runs on mono and should work under .NET as well.

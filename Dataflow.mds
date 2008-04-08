@@ -1,0 +1,20 @@
+<Combine name="Dataflow" fileversion="2.0">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry build="True" name="DataflowEngine" configuration="Debug" />
+      <Entry build="True" name="Tests" configuration="Default" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry build="True" name="DataflowEngine" configuration="Release" />
+      <Entry build="True" name="Tests" configuration="Default" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="DataflowEngine" single="True">
+    <Execute type="None" entry="DataflowEngine" />
+    <Execute type="None" entry="Tests" />
+  </StartMode>
+  <Entries>
+    <Entry filename="DataflowEngine/DataflowEngine.mdp" />
+    <Entry filename="Tests/Tests.md-nunit" />
+  </Entries>
+</Combine>

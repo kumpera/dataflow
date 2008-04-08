@@ -1,0 +1,114 @@
+The readme is a brain dump, so it's unstructured and ungly.
+
+---------------- Patch API ------------------
+
+The Patch API uses strings for everything and this sucks. It would
+be nice to be able to  come up with a model that reduces that.
+
+
+
+---------- File name convention --------------
+
+A file with plural name can contain a whole category of types.
+Otherwise the file should contain only one class with all its
+internal classes.
+
+
+----------- Execution Model -------------------
+
+While this project is meant to be a PD or QTC clone it's a good
+idea to understand their execution model to better model ours.
+
+---PD--- Pd uses a simple and reactive model. The system is entirely
+based on message exchange.
+
+You have active/hot and passive/cold inlets. Passive inlets just
+store the message while hot inlets can cause code to execute.  All
+patches have one default leftmost hot inlet that is used to send
+messages to the object.
+
+The execution model is a bit messy since it does a depth first
+search for message passing.  This requires the use patches to create
+control points, or rendezvous, to have explicit control of execution.
+
+There is not an exact model of execution as there is no explicit
+start point. An explicit message must be sent (an UI element
+triggering a bang, for example) and cause a depth first execution
+to happen. Outside elements such a midi port can cause messsages
+to be sent.
+
+In case of multiple outlets connected to the same inlet, what happens
+depends on how execution happens.
+
+When doing audio (and video? what about it?), the DSP works by
+producing processing a block of samples at a time in regular
+intervals. Audio patches can't be mixed with non-audio patches.
+Audio execution model has another twist. Before executing, PD sort
+all patches into a linear order and execute allways that, audio
+graphs must be acylic. PD must be doing a topological sort as there
+is not other sane thing to do.
+
+---QTC---
+
+Quartz Composer is a quite diferent beast. It's execution model is
+modeled to produce audiovisual effects and for such it does things
+in a more restrictive way.  The whole graph is executed in frames
+with a fixed plan.
+
+Patches are separated by their execution and time mode. There are
+input, output and processing patches (provider, consumer and processor
+in qtc terminology).
+
+An input patch is executed only if data is requested from it, but
+no more than once per frame.
+
+An output patch is always executed. All output patches have an
+enabled inlet added automatically by qtc.
+
+A processing patch is executed when if it's input changes, either
+an inlet or time.
+
+Patches time modes are: none, no time dependency; idle, it needs
+to be executed periodically, usually to poll a source; and time
+base, it has a time base defined - a time based wave generator or
+timer.
+
+QTC execution mode can be seen as a tricky topological sort that
+works on cyclic graphs by simply ignoring cicles at the lowest
+depths of the forest. It starts from the outputs and move to the
+patches connected to their inlets and so forth.
+
+QTC execution model fits well for DSP processing and audiovisual
+production. Not only that but it provides a more preditable execution
+model. This is facilitated by the fact than an inlet can be connected
+to only one oulet.
+
+
+----- Proposed execution model ------
+
+Our goal is to provide an enviroment that is rich, functional and
+easy to use. Usability is more a factor of predictability and
+avoiding surprises, this is something that the PD model lacks as
+it's quite confusing (specially the UI).
+
+Our model works in a frame based fashion, like qtc or pd's dsp, or
+in passive mode, waiting for an explicit activation.
+
+The walking algorithm must be the same on both modes and the goal
+is to provide something predictable as the idea is to allow for
+parallel execution.
+
+The execution is done by a breath first search over the graph roots.
+Roots under the frame model are all patches without connected inlets
+that can be executed; under passive mode the root is the patch that
+receive the initiating message.
+
+Inlets and Outlets have names as this seens as a better abstraction
+than the named messages facility of PD. We should investigate if a
+more advanced general selector facility is needed thou.
+
+The execution of a patch is dictated by the activation policy of
+inlets. It can be passive, activate on message or activate on change.
+For things like DSPs we could use either an explicit pulse source
+or an implicit connection from a patch to a given set of inlets.
+
