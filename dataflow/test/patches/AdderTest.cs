@@ -26,42 +26,40 @@ using NUnit.Framework;
 using NMock2;
 using Dataflow.Core;
 
-namespace Dataflow.Patches
-{
-	[TestFixture()]
-	public class AdderTest
-	{
+namespace Dataflow.Patches {
+[TestFixture()]
+public class AdderTest {
     private Mockery mocks;
     private IPatchContainer mockPatchContainer;
 
     [SetUp]
     public void SetUp() {
-      mocks = new Mockery();
-      mockPatchContainer = mocks.NewMock<IPatchContainer>();
+        mocks = new Mockery();
+        mockPatchContainer = mocks.NewMock<IPatchContainer>();
     }
 
-		[Test()]
-		public void ShouldAddTwoInletsTogether() {
+    [Test()]
+    public void ShouldAddTwoInletsTogether() {
 
-      Stub.On(mockPatchContainer).GetProperty("CurrentFrame").Will(Return.Value(0));
+        Stub.On(mockPatchContainer).GetProperty("CurrentFrame").Will(Return.Value(0));
 
-      Inlet<int> lhs = new Inlet<int>("left", mockPatchContainer, ActivationMode.ActivateOnMessage);
-      Inlet<int> rhs = new Inlet<int>("right", mockPatchContainer, ActivationMode.ActivateOnMessage);
-      Outlet<int> result = new Outlet<int>("result", mockPatchContainer);
+        Inlet<int> lhs = new Inlet<int>("left", mockPatchContainer, ActivationMode.ActivateOnMessage);
+        Inlet<int> rhs = new Inlet<int>("right", mockPatchContainer, ActivationMode.ActivateOnMessage);
+        Outlet<int> result = new Outlet<int>("result", mockPatchContainer);
 
-      lhs.Value = 2;
-      rhs.Value = 3;
+        lhs.Value = 2;
+        rhs.Value = 3;
 
-      Expect.Once.On(mockPatchContainer).Method("AddInlet").With("left").Will(Return.Value(lhs));
-      Expect.Once.On(mockPatchContainer).Method("AddInlet").With("right").Will(Return.Value(rhs));
+        Expect.Once.On(mockPatchContainer).Method("AddInlet").With("left").Will(Return.Value(lhs));
+        Expect.Once.On(mockPatchContainer).Method("AddInlet").With("right").Will(Return.Value(rhs));
 
-      Expect.Once.On(mockPatchContainer).Method("AddOutlet").With("result").Will(Return.Value(result));
+        Expect.Once.On(mockPatchContainer).Method("AddOutlet").With("result").Will(Return.Value(result));
 
-      Adder adder = new Adder();
-      adder.Init(mockPatchContainer);
-      adder.Execute();
+        Adder adder = new Adder();
+        adder.Init(mockPatchContainer);
+        adder.Execute();
 
-      Assert.AreEqual(5, result.Value);
-		}
-	}
+        Assert.AreEqual(5, result.Value);
+    }
+}
 }

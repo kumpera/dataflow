@@ -24,24 +24,21 @@
 using System;
 using Dataflow.Core;
 
-namespace Dataflow.Patches
-{
+namespace Dataflow.Patches {
 
-	public class Adder : IPatch
-	{
-		Inlet<int> left;
-		Inlet<int> right;
-		Outlet<int> result;
+public class Adder : IPatch {
+    Inlet<int> left;
+    Inlet<int> right;
+    Outlet<int> result;
 
-		public void Init (IPatchContainer container) {
-			left = container.AddInlet<int> ("left");
-			right = container.AddInlet<int> ("right");
-			result = container.AddOutlet<int> ("result");
-		}
+    public void Init(IPatchContainer container) {
+        left = container.AddInlet<int> ("left");
+        right = container.AddInlet<int> ("right");
+        result = container.AddOutlet<int> ("result");
+    }
 
-		public void Execute ()
-		{
-			result.Value = left.Value + right.Value;
-		}
-	}
+    public void Execute() {
+        result.Value = left.Value + right.Value;
+    }
+}
 }

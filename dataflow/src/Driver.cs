@@ -21,14 +21,14 @@
 * Author:  Rodrigo Kumpera
 */
 
-namespace Dataflow
-{
-	class Driver
-	{
-		public static int Main(string[] args)
-		{
-			//TODO add a sample program that generates a senoid and dump to console.
-			return 0;
-		}
-	}
+using System;
+
+namespace Dataflow {
+class Driver {
+    public static int Main(string[] args) {
+
+        Console.WriteLine("Not doing much just yet...");
+        return 0;
+    }
+}
 }
