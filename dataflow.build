@@ -20,7 +20,7 @@ See AUTHORS and LICENSE for details.
     <mkdir dir="${bindir}"/>    
   </target>
 
-  <target name="build" depends="clean, compile, copy-dependencies, test" description="compiles the source code">
+  <target name="build" depends="clean, compile, internal:copy-dependencies, test" description="compiles the source code">
   </target>
   
   <target name="compile" description="compiles the source code">
@@ -29,7 +29,6 @@ See AUTHORS and LICENSE for details.
         <include name="${appname}/src/**.cs" />
         <include name="${appname}/test/**.cs" />
       </sources>
-      
       <references failonempty="true">
         <include name="Mono.C5.dll"/>
         <include name="${appname}/lib/**/*.dll"/>        
@@ -37,7 +36,7 @@ See AUTHORS and LICENSE for details.
     </csc>
   </target>
   
-  <target name="copy-dependencies" description="copies libs to output dir">
+  <target name="internal:copy-dependencies" description="copies libs to output dir">
     <copy todir="${bindir}">
       <fileset basedir="${appname}/lib">
         <include name="*.dll"/>
@@ -45,21 +44,17 @@ See AUTHORS and LICENSE for details.
     </copy>
   </target>    
 
-  <target name="test" description="runs tests">
-    <delete dir="${bindir}/test-results" failonerror="true" />
-    <mkdir dir="${bindir}/test-results"/>
-    
+  <target name="test" depends="internal:clear-test-results" description="runs tests">
     <exec program="${nunit-console}" managed="true">
       <arg file="${exename}" />
       <arg value="-labels" />
       <arg value="-xml=${bindir}/test-results/results.xml" />
     </exec>
-    
-    <delete verbose="true">
-      <fileset>
-        <include name="???NUnitPrimaryTrace.txt"/>
-      </fileset>
-    </delete>
+  </target>
+
+  <target name="internal:clear-test-results" description="clear test results dir">
+    <delete dir="${bindir}/test-results" failonerror="true" />
+    <mkdir dir="${bindir}/test-results"/>
   </target>
 
 </project>
