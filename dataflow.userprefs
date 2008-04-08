@@ -1,0 +1,51 @@
+﻿<UserCombinePreferences version="1.0" filename="/Users/cv/src/dataflow/dataflow.mds">
+  <Files />
+  <Views>
+    <ViewMemento id="ProjectPad">
+      <Node expanded="True">
+        <Node name="dataflow" expanded="True">
+          <Node name="References" expanded="True" />
+          <Node name="Resources">
+            <Option id="GroupCodeBehind" value="True" />
+            <Option id="ShowAllFiles" value="True" />
+          </Node>
+          <Node name="src" expanded="True">
+            <Node name="core" expanded="True" />
+            <Node name="patches" expanded="True">
+              <Node name="Multiplier.cs" selected="True" />
+            </Node>
+          </Node>
+          <Node name="test" expanded="True">
+            <Node name="core" expanded="True" />
+            <Node name="patches" expanded="True" />
+          </Node>
+        </Node>
+      </Node>
+    </ViewMemento>
+    <ViewMemento id="ClassPad">
+      <Node expanded="True">
+        <Node name="dataflow" selected="True" />
+      </Node>
+    </ViewMemento>
+    <ViewMemento id="MonoDevelop.NUnit.TestPad">
+      <Node expanded="True" selected="True">
+        <Node name="dataflow" expanded="True">
+          <Node name="Dataflow" expanded="True">
+            <Node name="Core" expanded="True">
+              <Node name="EngineTest" expanded="True" />
+              <Node name="PatchTests" expanded="True" />
+            </Node>
+            <Node name="Patches" expanded="True">
+              <Node name="AdderTest" expanded="True" />
+              <Node name="MultiplierTest" expanded="True" />
+            </Node>
+          </Node>
+        </Node>
+      </Node>
+    </ViewMemento>
+  </Views>
+  <Properties>
+    <Property key="ActiveWindow" value="" />
+    <Property key="ActiveConfiguration" value="Debug" />
+  </Properties>
+</UserCombinePreferences>
