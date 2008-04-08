@@ -42,20 +42,27 @@ namespace Dataflow.Patches
 
 		[Test()]
 		public void ShouldAddTwoInletsTogether() {
+		  Inlet<int> lhs = new Inlet<int>("left", mockPatchContainer, ActivationMode.ActivateOnMessage);
+		  Inlet<int> rhs = new Inlet<int>("right", mockPatchContainer, ActivationMode.ActivateOnMessage);
+		  Outlet<int> result = new Outlet<int>("result", mockPatchContainer);
+		  
+		  lhs.Value = 2;
+		  rhs.Value = 3;
+		  
 		  Expect.Once.On(mockPatchContainer).
                   Method("AddInlet").
                   With("left").
-                  Will(Return.Value(new Inlet<int>("left", mockPatchContainer, ActivationMode.ActivateOnMessage)));
+                  Will(Return.Value(lhs));
 
 		  Expect.Once.On(mockPatchContainer).
                   Method("AddInlet").
                   With("right").
-                  Will(Return.Value(new Inlet<int>("right", mockPatchContainer, ActivationMode.ActivateOnMessage)));
+                  Will(Return.Value(rhs));
 
 		  Expect.Once.On(mockPatchContainer).
                   Method("AddOutlet").
                   With("result").
-                  Will(Return.Value(new Outlet<int>("result", mockPatchContainer)));
+                  Will(Return.Value(result));
 
 		  Expect.Once.On(mockPatchContainer).
                   GetProperty("CurrentFrame").
@@ -64,6 +71,8 @@ namespace Dataflow.Patches
 			Adder adder = new Adder();
 			adder.Init(mockPatchContainer);
 			adder.Execute();
+			
+			Assert.That(result.Value, Is.EqualTo(5));
 		}
 	}
 }
