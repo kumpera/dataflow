@@ -20,7 +20,7 @@ See AUTHORS and LICENSE for details.
     <mkdir dir="${bindir}"/>    
   </target>
 
-  <target name="build" depends="clean, compile, internal:copy-dependencies, test" description="compiles the source code">
+  <target name="build" depends="clean, compile, test" description="compiles the source code">
   </target>
   
   <target name="compile" description="compiles the source code">
@@ -36,6 +36,23 @@ See AUTHORS and LICENSE for details.
     </csc>
   </target>
   
+  <target name="test" depends="internal:copy-dependencies, internal:clear-test-results" description="runs tests">
+    <exec program="${nunit-console}" managed="true">
+      <arg file="${exename}" />
+      <arg value="-labels" />
+      <arg value="-xml=${bindir}/test-results/results.xml" />
+    </exec>
+  </target>
+
+  <target name="format" description="formats source code using astyle">
+    <exec program="util/format.sh"/>
+    <delete>
+      <fileset>
+        <include name="${appname}/**/*.orig"/>
+      </fileset>
+    </delete>
+  </target>
+
   <target name="internal:copy-dependencies" description="copies libs to output dir">
     <copy todir="${bindir}">
       <fileset basedir="${appname}/lib">
@@ -43,14 +60,6 @@ See AUTHORS and LICENSE for details.
       </fileset>
     </copy>
   </target>    
-
-  <target name="test" depends="internal:clear-test-results" description="runs tests">
-    <exec program="${nunit-console}" managed="true">
-      <arg file="${exename}" />
-      <arg value="-labels" />
-      <arg value="-xml=${bindir}/test-results/results.xml" />
-    </exec>
-  </target>
 
   <target name="internal:clear-test-results" description="clear test results dir">
     <delete dir="${bindir}/test-results" failonerror="true" />
