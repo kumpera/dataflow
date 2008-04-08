@@ -1,4 +1,11 @@
 <?xml version="1.0"?>
+<!-- 
+
+Copyright © 2008 The Dataflow Team
+
+See AUTHORS and LICENSE for details.
+
+-->
 <project name="Dataflow" default="build" basedir=".">
   <description>Builds the Dataflow engine and patches.</description>
 
