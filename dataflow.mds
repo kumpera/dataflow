@@ -1,0 +1,16 @@
+<Combine name="dataflow" fileversion="2.0">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry build="True" name="dataflow" configuration="Debug" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry build="True" name="dataflow" configuration="Release" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="dataflow" single="True">
+    <Execute type="None" entry="dataflow" />
+  </StartMode>
+  <Entries>
+    <Entry filename="dataflow/dataflow.mdp" />
+  </Entries>
+</Combine>
