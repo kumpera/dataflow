@@ -25,6 +25,9 @@
     <File name="test/core/EngineTest.cs" subtype="Code" buildaction="Compile" />
     <File name="test/patches/AdderTest.cs" subtype="Code" buildaction="Compile" />
     <File name="test/core/PatchContainerTest.cs" subtype="Code" buildaction="Compile" />
+    <File name="test/patches/MultiplierTest.cs" subtype="Code" buildaction="Compile" />
+    <File name="test/patches/SimpleArithmeticTestBase.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/patches/Multiplier.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Assembly" localcopy="True" refto="../dep/nmock2-2.0.0.44-net-2.0/bin/NMock2.AcceptanceTests.dll" />

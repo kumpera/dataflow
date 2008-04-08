@@ -29,24 +29,24 @@ using Dataflow.Core;
 namespace Dataflow.Patches {
 
 [TestFixture()]
-public class AdderTest : SimpleArithmeticTestBase {
+public class MultiplierTest : SimpleArithmeticTestBase {
 
     [Test()]
-    public void ShouldAddTwoPositiveInletsTogether() {
+    public void ShouldMultiplyTwoPositiveInlets() {
         LeftValueIs(2);
         RightValueIs(3);
-        ResultShouldBe(5);
+        ResultShouldBe(6);
     }
 
     [Test()]
-    public void ShouldAddTwoNegativeInletsTogether() {
+    public void ShouldMultiplyTwoNegativeInlets() {
         LeftValueIs(-2);
         RightValueIs(-3);
-        ResultShouldBe(-5);
+        ResultShouldBe(6);
     }
 
     [Test()]
-    public void ShouldAddZerosTogether() {
+    public void ShouldMultiplyZeros() {
         LeftValueIs(0);
         RightValueIs(0);
         ResultShouldBe(0);
@@ -55,9 +55,9 @@ public class AdderTest : SimpleArithmeticTestBase {
     private void ResultShouldBe(int value) {
         Outlet<int> result = Result();
 
-        Adder adder = new Adder();
-        adder.Init(mockPatchContainer);
-        adder.Execute();
+        Multiplier multiplier = new Multiplier();
+        multiplier.Init(mockPatchContainer);
+        multiplier.Execute();
 
         Assert.AreEqual(value, result.Value);
     }
