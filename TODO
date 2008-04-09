@@ -9,3 +9,5 @@
 * Mandatory default, optional min and max values for inlets, overflow and underflow checks (throws exception? logs to console? explodes?)
 
 * Explore how to build GUI (Gtk? Gdk? Cairo? X?)
+
+* Figure out serialized format for patches / UI <-> Engine comms protocol
