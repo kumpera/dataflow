@@ -1,0 +1,11 @@
+----- TODO -----
+
+* Self-documenting API
+
+* Auto-discover patches inside a .NET assembly
+
+* Type casting between inlets and outlets - how do we create inlets that support mulitple types?
+
+* Mandatory default, optional min and max values for inlets, overflow and underflow checks (throws exception? logs to console? explodes?)
+
+* Explore how to build GUI (Gtk? Gdk? Cairo? X?)
