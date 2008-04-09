@@ -12,23 +12,23 @@ namespace Dataflow.Patches {
 public class NumberKeeper : IPatch {
 
     public int Number {
-      get {
-        return input.Value;
-      }
+        get {
+            return input.Value;
+        }
     }
-    
+
     public Inlet<int> Input {
-      get {
-        return input;
-      }
+        get {
+            return input;
+        }
     }
 
     public Outlet<int> Output {
-      get {
-        return output;
-      }
+        get {
+            return output;
+        }
     }
-    
+
     private Inlet<int> input;
     private Outlet<int> output;
 
