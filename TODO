@@ -11,3 +11,5 @@
 * Explore how to build GUI (Gtk? Gdk? Cairo? X?)
 
 * Figure out serialized format for patches / UI <-> Engine comms protocol
+
+* Build the tests into a separate assembly
