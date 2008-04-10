@@ -10,15 +10,11 @@ namespace Dataflow.Core {
 
 [AttributeUsage(AttributeTargets.Class)]
 public class PatchAttribute : Attribute {
-    string name;
     public PatchAttribute(string name, string category) {
-        this.name = name;
+        Name = name;
     }
 
-    public string Name {
-        get {
-            return name;
-        }
-    }
+    public string Name { get; private set; }
+
 }
 }

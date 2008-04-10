@@ -13,8 +13,8 @@ public class PatchRepository {
     HashDictionary <string, PatchMetaClass> patches = new HashDictionary<string, PatchMetaClass> ();
 
     static bool DependsOnDataflow(Assembly target, Assembly dataflow) {
-        String dataflowName = dataflow.GetName().Name;
-        foreach (AssemblyName name in target.GetReferencedAssemblies()) {
+        var dataflowName = dataflow.GetName().Name;
+        foreach (var name in target.GetReferencedAssemblies()) {
             if (name.Name == dataflowName) {
                 return true;
             }
@@ -23,7 +23,7 @@ public class PatchRepository {
     }
 
     private void ProcessType(Type type, object [] attr) {
-        foreach (object obj in attr) {
+        foreach (var obj in attr) {
             PatchAttribute pa = obj as PatchAttribute;
             PatchMetaClass meta = new PatchMetaClass();
             patches.Add(pa.Name, meta);
@@ -31,10 +31,10 @@ public class PatchRepository {
     }
 
     public void Init() {
-        Assembly[] all = AppDomain.CurrentDomain.GetAssemblies();
-        Assembly dataflow = Assembly.GetCallingAssembly();
+        var all = AppDomain.CurrentDomain.GetAssemblies();
+        var dataflow = Assembly.GetCallingAssembly();
 
-        foreach (Assembly asm in all) {
+        foreach (var asm in all) {
             Type[] types = null;
             try {
                 if (asm == dataflow || DependsOnDataflow(asm, dataflow))
@@ -43,11 +43,11 @@ public class PatchRepository {
                 types = e.Types;
             }
 
-            if (types == null)
-                continue;
+			if (types == null)
+				continue;
 
-            foreach (Type t in types) {
-                object[] attr = t.GetCustomAttributes(typeof(PatchAttribute), true);
+            foreach (var t in types) {
+                var attr = t.GetCustomAttributes(typeof(PatchAttribute), true);
                 if (attr != null && attr.Length > 0)
                     ProcessType(t, attr);
             }
