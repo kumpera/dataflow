@@ -2,3 +2,6 @@ bin
 test-results
 *.orig
 *NUnitPrimaryTrace.txt
+*.*~
+*~
+.project
