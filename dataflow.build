@@ -13,7 +13,7 @@ See AUTHORS and LICENSE for details.
   <property name="appname" value="dataflow" overwrite="false" />
   <property name="bindir" value="bin" overwrite="false" />
   <property name="exename" value="${bindir}/${appname}.exe" overwrite="false" />
-  <property name="nunit-console" value="dep/nunit-2.4.7-net-2.0/bin/nunit-console.exe" overwrite="false"/>
+  <property name="nunit-console" value="bin/nunit-console.exe" overwrite="false" />
   
   <target name="clean" description="remove all generated files">
     <delete dir="${bindir}" failonerror="true" />
@@ -64,6 +64,7 @@ See AUTHORS and LICENSE for details.
     <copy todir="${bindir}">
       <fileset basedir="${appname}/lib">
         <include name="*.dll"/>
+        <include name="*.exe"/>
       </fileset>
     </copy>
   </target>    
