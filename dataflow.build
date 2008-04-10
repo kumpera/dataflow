@@ -20,7 +20,7 @@ See AUTHORS and LICENSE for details.
     <mkdir dir="${bindir}"/>    
   </target>
 
-  <target name="build" depends="clean, format, compile, test, commit" description="default target - build everything and commit"/>
+  <target name="build" depends="clean, format, compile, test" description="default target - build everything and commit"/>
   
   <target name="compile" description="compiles the source code">
     <csc target="exe" output="${exename}" debug="${debug}" langversion="linq">
