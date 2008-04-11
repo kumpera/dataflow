@@ -8,6 +8,9 @@ using System;
 using System.Reflection;
 using C5;
 
+using Dataflow.Core.Extensions;
+
+
 namespace Dataflow.Core {
 public class PatchRepository {
     HashDictionary <string, PatchMetaClass> patches = new HashDictionary<string, PatchMetaClass> ();
@@ -22,12 +25,9 @@ public class PatchRepository {
         return false;
     }
 
-    private void ProcessType(Type type, object [] attr) {
-        foreach (var obj in attr) {
-            PatchAttribute pa = obj as PatchAttribute;
-            PatchMetaClass meta = new PatchMetaClass();
-            patches.Add(pa.Name, meta);
-        }
+    private void ProcessType(Type type, PatchAttribute pa) {
+        PatchMetaClass meta = new PatchMetaClass(type);
+        patches.Add(pa.Name, meta);
     }
 
     public void Init() {
@@ -43,12 +43,12 @@ public class PatchRepository {
                 types = e.Types;
             }
 
-			if (types == null)
-				continue;
+            if (types == null)
+                continue;
 
             foreach (var t in types) {
-                var attr = t.GetCustomAttributes(typeof(PatchAttribute), true);
-                if (attr != null && attr.Length > 0)
+                var attr = t.GetCustomAttribute<PatchAttribute> ();
+                if (attr != null)
                     ProcessType(t, attr);
             }
         }
