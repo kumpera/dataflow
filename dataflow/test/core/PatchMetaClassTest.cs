@@ -65,8 +65,6 @@ public class PatchMetaClassTest {
         Assert.AreEqual("output", outlets [0].Name, "#2");
     }
 
-
-
     [Test]
     public void MetaClassParseImplicitPatchName() {
         var pm = new PatchMetaClass(typeof(TestPatchWithImplicitName));
@@ -84,7 +82,7 @@ public class PatchMetaClassTest {
 
 
     [Test]
-    public void MetaClassEnumerateOutletWithImplicitName() {
+    public void MetaClassEnumerateOutletWithImplicitName () {
         var pm = new PatchMetaClass(typeof(TestPatchWithImplicitName));
 
         var outlets = pm.Outlets;
@@ -92,5 +90,15 @@ public class PatchMetaClassTest {
         Assert.AreEqual("TestOutput", outlets [0].Name, "#2");
     }
 
+
+	[Test]
+	public void NewInstanceFillInletsAndOutLets () {
+		var pm = new PatchMetaClass(typeof(TestPatch));
+		var patch = pm.NewInstance<TestPatch> ();
+
+		Assert.IsNotNull (patch, "#1");
+		Assert.IsNotNull (patch.Tst, "#2");
+		Assert.IsNotNull (patch.Output, "#3");
+	}
 }
 }

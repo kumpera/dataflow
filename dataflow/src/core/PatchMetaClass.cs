@@ -15,12 +15,13 @@ namespace Dataflow.Core {
 internal class InletMetaData {
     PatchMetaClass container;
     PropertyInfo property;
+	InletAttribute attrs;
 
     public InletMetaData(PatchMetaClass container, PropertyInfo property) {
         this.container = container;
         this.property = property;
-        Attributes = property.GetCustomAttribute<InletAttribute> ();
-        Name = Attributes.Name != null ? Attributes.Name : property.Name;
+        this.attrs = property.GetCustomAttribute<InletAttribute> ();
+        Name = attrs.Name != null ? attrs.Name : property.Name;
     }
 
     public string Name {
@@ -28,21 +29,22 @@ internal class InletMetaData {
         private set;
     }
 
-    public InletAttribute Attributes {
-        get;
-        private set;
-    }
+	public void Init (PatchContainer container, object obj) {
+		//FIXME use delegates and generics magic to avoid reflection here
+		property.SetValue (obj, Activator.CreateInstance (property.PropertyType, Name, container, attrs.Mode), null);
+	}
 }
 
 internal class OutletMetaData {
     PatchMetaClass container;
     PropertyInfo property;
+	OutletAttribute attrs;
 
     public OutletMetaData(PatchMetaClass container, PropertyInfo property) {
         this.container = container;
         this.property = property;
-        Attributes = property.GetCustomAttribute<OutletAttribute> ();
-        Name = Attributes.Name != null ? Attributes.Name : property.Name;
+        this.	attrs = property.GetCustomAttribute<OutletAttribute> ();
+        Name = attrs.Name != null ? attrs.Name : property.Name;
     }
 
     public string Name {
@@ -50,10 +52,11 @@ internal class OutletMetaData {
         private set;
     }
 
-    public OutletAttribute Attributes {
-        get;
-        private set;
-    }
+	public void Init (PatchContainer container, object obj) {
+		//FIXME use delegates and generics magic to avoid reflection here
+		property.SetValue (obj, Activator.CreateInstance (property.PropertyType, Name, container), null);
+		
+	}
 }
 
 public class PatchMetaClass {
@@ -61,11 +64,9 @@ public class PatchMetaClass {
     InletMetaData[] inlets;
     OutletMetaData[] outlets;
 
-
-
     public PatchMetaClass(Type type) {
         this.type = type;
-        Attributes = type.GetCustomAttribute<PatchAttribute> ();
+        var attrs = type.GetCustomAttribute<PatchAttribute> ();
 
         var ins = new ArrayList<InletMetaData> ();
         var outs = new ArrayList<OutletMetaData> ();
@@ -80,7 +81,7 @@ public class PatchMetaClass {
         this.inlets = ins.ToArray();
         this.outlets = outs.ToArray();
 
-        Name = Attributes.Name != null ? Attributes.Name : type.Name;
+        Name = attrs.Name != null ? attrs.Name : type.Name;
     }
 
     public string Name {
@@ -93,17 +94,50 @@ public class PatchMetaClass {
             return this.inlets;
         }
     }
+
     internal OutletMetaData[] Outlets {
         get {
             return this.outlets;
         }
     }
 
+	//FIXME we could avoid this thing by supplying a pair of delegates to PatchContainer instead.
+	private class PatchAdapter : IPatch {
+		public PatchAdapter (object obj) {
+			//TODO extract the apropriate delegates
+		}
 
-    public PatchAttribute Attributes {
-        get;
-        private set;
-    }
+		public void Init(IPatchContainer container) {
 
+		}
+
+		public void Execute() {
+
+		}
+	}
+
+	IPatch MakePatch (object obj) {
+		IPatch res = obj as IPatch;
+		if (res != null)
+			return res;
+		return new PatchAdapter (obj);
+	}
+	
+	public T NewInstance<T> () where T : class {
+		if (typeof (T) != type)
+			throw new ArgumentException ("invalid type "+typeof (T));
+
+		var res = Activator.CreateInstance<T> ();
+
+		var pc = new PatchContainer (MakePatch (res));
+
+		foreach (InletMetaData inlet in this.inlets)
+			inlet.Init (pc, res);
+
+		foreach (OutletMetaData outlet in this.outlets)
+			outlet.Init (pc, res);
+
+		return res;
+	}
 }
 }

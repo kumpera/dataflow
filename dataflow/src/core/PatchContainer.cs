@@ -26,6 +26,7 @@ public class PatchContainer : IPatchContainer {
             return this.outlets.Values;
         }
     }
+
     public ICollectionValue<IInlet> Inlets {
         get {
             return this.inlets.Values;
@@ -73,5 +74,7 @@ public class PatchContainer : IPatchContainer {
         this.patch.Execute();
         ++frame;
     }
+
+	public IPatch Patch { get { return patch; } }
 }
 }

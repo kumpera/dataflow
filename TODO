@@ -13,3 +13,5 @@
 * Figure out serialized format for patches / UI <-> Engine comms protocol
 
 * Build the tests into a separate assembly
+
+* Refactor Inlet|Outlet classes to use (Inlet|Outlet)MetaData

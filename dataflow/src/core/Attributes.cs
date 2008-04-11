@@ -57,6 +57,10 @@ public class InletAttribute : DocumentableAttribute {
         set;
     }
 
+    public object DefaultValue {
+        get;
+        set;
+    }
 }
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
