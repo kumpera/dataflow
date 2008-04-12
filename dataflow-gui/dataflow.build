@@ -36,7 +36,7 @@ See AUTHORS and LICENSE for details.
 
       <references failonempty="true">
         <include name="lib/*.dll"/>
-      </	references>
+      </references>
 
     </csc>
   </target>
