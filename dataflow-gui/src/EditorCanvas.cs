@@ -15,12 +15,38 @@ public class EditorCanvas : Gtk.DrawingArea {
     }
 
     void Draw(Context cc, int x, int y, int width, int height, int depth) {
-        cc.Color = new Color(0.5, 0.5, 0.5);
 
-        cc.Pattern = new SolidPattern(new Color(1.0, 0, 0), true);
+        //fill background
+        cc.Color = new Color(0.8, 0.8, 0.8);
+        cc.Paint();
 
-        cc.Rectangle(20, 20, 100, 100);
+
+        cc.Color = new Color(0.6, 0.6, 0.6);
+        DrawRoundedRectangle(cc, 40, 40, 80, 120, 10);
+
+        DrawRoundedRectangle(cc, 40, 40, 80, 120, 10);
+
+    }
+
+
+    void DrawRoundedRectangle(Context cc, double x, double y, double width, double height, double arcRadius) {
+
+        cc.MoveTo(x + arcRadius, y);
+        cc.LineTo(x + width - arcRadius, y);
+        cc.Arc(x + width - arcRadius, y + arcRadius, arcRadius, -Math.PI / 2 , 0);
+
+        cc.LineTo(x + width, y + height - arcRadius);
+        cc.Arc(x + width - arcRadius, y + height - arcRadius, arcRadius, 0, Math.PI / 2);
+
+        cc.LineTo(x + arcRadius,  y + height);
+        cc.Arc(x + arcRadius, y + height - arcRadius, arcRadius, Math.PI / 2, Math.PI);
+
+        cc.LineTo(x,  y + arcRadius);
+        cc.Arc(x + arcRadius, y + arcRadius, arcRadius, Math.PI, -Math.PI / 2);
+
+        cc.ClosePath();
         cc.Fill();
+
     }
 }
 
