@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!-- 
+
+Copyright © 2008 The Dataflow Team
+
+See AUTHORS and LICENSE for details.
+
+-->
+<project name="Dataflow" default="build" basedir=".">
+  <description>Builds the Dataflow Gui.</description>
+
+  <property name="debug" value="true" overwrite="false" />
+  <property name="appname" value="dteditor" overwrite="false" />
+  <property name="bindir" value="bin" overwrite="false" />
+  <property name="exename" value="${bindir}/${appname}.exe" overwrite="false" />
+  <property name="nunit-console" value="bin/nunit-console.exe" overwrite="false" />
+  
+  <target name="clean" description="remove all generated files">
+    <delete dir="${bindir}" failonerror="true" />
+    <mkdir dir="${bindir}"/>    
+  </target>
+
+  <!--<target name="build" depends="clean, format, compile, test" description="default target - build everything and commit"/>-->
+  
+  <target name="compile" description="compiles the source code">
+    <csc target="exe" output="${exename}" debug="${debug}" langversion="linq">
+      <sources>
+        <include name="src/**.cs" />
+        <include name="${appname}/test/**.cs" />
+      </sources>
+
+      <pkg-references failonempty="true">
+        <package name="gtk-sharp-2.0"/>
+        <!--<package name="mono-cairo"/> -->
+      </pkg-references>
+
+      <references failonempty="true">
+        <include name="lib/*.dll"/>
+      </	references>
+
+    </csc>
+  </target>
+
+   <target name="run" depends="compile" description="run gui">
+    <exec program="${exename}" managed="true">
+    </exec>
+  </target>
+
+  <target name="test" depends="internal:copy-dependencies, internal:clear-test-results" description="runs tests">
+    <exec program="${nunit-console}" managed="true">
+      <arg file="${exename}" />
+      <arg value="-labels" />
+      <arg value="-xml=${bindir}/test-results/results.xml" />
+    </exec>
+  </target>
+
+  <target name="format" description="formats source code using astyle">
+    <exec program="util/format.sh"/>
+    <delete>
+      <fileset>
+        <include name="${appname}/**/*.orig"/>
+      </fileset>
+    </delete>
+  </target>
+  
+  <target name="commit" description="commits changes made using git">
+    <exec program="git">
+      <arg value="commit"/>
+      <arg value="-a"/>
+      <arg value="-m 'successful build'"/>
+    </exec>
+  </target>
+
+  <target name="internal:copy-dependencies" description="copies libs to output dir">
+    <copy todir="${bindir}">
+      <fileset basedir="${appname}/lib">
+        <include name="*.dll"/>
+        <include name="*.exe"/>
+      </fileset>
+    </copy>
+  </target>    
+
+  <target name="internal:clear-test-results" description="clear test results dir">
+    <delete dir="${bindir}/test-results" failonerror="true" />
+    <mkdir dir="${bindir}/test-results"/>
+  </target>
+</project>
