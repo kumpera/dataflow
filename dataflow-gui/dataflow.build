@@ -55,7 +55,7 @@ See AUTHORS and LICENSE for details.
   </target>
 
   <target name="format" description="formats source code using astyle">
-    <exec program="util/format.sh"/>
+    <exec program="../util/format.sh"/>
     <delete>
       <fileset>
         <include name="${appname}/**/*.orig"/>
