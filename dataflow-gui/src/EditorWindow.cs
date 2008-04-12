@@ -14,7 +14,7 @@ public class EditorWindow : Gtk.Window {
         okButton.Label = "Me clica";
         leftPanel.Add(okButton);
         SetResize(leftPanel, okButton, false);
-        okButton.Clicked += (obj, arg) = > Application.Quit();
+        okButton.Clicked += (obj, arg) => Application.Quit();
     }
 
     static void AddLogArea(Gtk.VPaned middlePanel) {
