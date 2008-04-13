@@ -74,23 +74,26 @@ public class PatchWidget {
 		this.outlets = outlets;
 	}
 
-	const int FIRST_LINE = 30;
-	const int LINE_WIDTH = 14;
+	const int HEADER_HEIGHT = 20;
+	const int FIRST_LINE = HEADER_HEIGHT + 10;
+
 	const int BORDER_ROUND_SIZE = 10;
 	const int HEADER_FONT_SIZE = 12;
-	const int PORT_FONT_SIZE = 10;
-	const int MIN_WIDTH = 80;
-	
 
-	public void Draw (Context ctx) {
+	const int PORT_FONT_SIZE = 10;
+	const int PORT_HEIGHT = 14;
+	const int PORT_BORDER_SPACING = 17;
+	const int PORT_INNER_SPACING = 8;
+
+	public void Draw (Context ctx, LogHandler log) {
 		this.ctx = ctx;
 		//We must first calculate the layout width based on title size and inlet/outlet sizes
-
-		CalcWidth ();
+		double width = CalcWidth ();
+		double height = HEADER_HEIGHT + Math.Max (inlets.Length, outlets.Length) * PORT_HEIGHT + BORDER_ROUND_SIZE;
 
 		//Patch envolope
         ctx.Color = Constants.LIGHT_GRAY;
-        DrawingPrimitives.DrawRoundedRectangle(ctx, 0, 0, 120, 80, BORDER_ROUND_SIZE);
+        DrawingPrimitives.DrawRoundedRectangle(ctx, 0, 0, width, height, BORDER_ROUND_SIZE);
 		ctx.FillPreserve ();
 		ctx.LineWidth = 1;
 		ctx.Color = Constants.BLACK;
@@ -98,7 +101,7 @@ public class PatchWidget {
 
 		//Patch header
 		ctx.Color = Constants.GREEN;
-        DrawingPrimitives.DrawUpRoundedRectangle (ctx, 0, 0, 120, 20, BORDER_ROUND_SIZE);
+        DrawingPrimitives.DrawUpRoundedRectangle (ctx, 0, 0, width, HEADER_HEIGHT, BORDER_ROUND_SIZE);
 		ctx.FillPreserve ();
 		ctx.LineWidth = 1;
 		ctx.Color = Constants.BLACK;
@@ -109,32 +112,36 @@ public class PatchWidget {
 		ctx.SetFontSize (HEADER_FONT_SIZE);
 		ctx.ShowText (name);
 
-		inlets.EachWithIndex ((n, idx) => DrawInlet (FIRST_LINE + idx * LINE_WIDTH, n));
-		outlets.EachWithIndex ((n, idx) => DrawOutlet (FIRST_LINE + idx * LINE_WIDTH, n));
+		inlets.EachWithIndex ((n, idx) => DrawInlet (FIRST_LINE + idx * PORT_HEIGHT, n));
+		outlets.EachWithIndex ((n, idx) => DrawOutlet (FIRST_LINE + idx * PORT_HEIGHT, width, n));
 	}
 
-	void CalcWidth () {
-		int width = MIN_WIDTH;
+	double CalcWidth () {
+		double width = 0;
 		//Header text must not enter the round border area
 
 		ctx.SetFontSize (HEADER_FONT_SIZE);
 		width = Math.Max (width, TextWidth (this.name) + 2 * BORDER_ROUND_SIZE);
 
-		ctx.SetFontSize (PORT_FONT_SIZE); 
+		ctx.SetFontSize (PORT_FONT_SIZE);
+		double left = 0;
+		double right = 0;
 		for (int i = 0; i < Math.Max (inlets.Length, outlets.Length); ++i) {
-			int left = CalcTextSize (inlet, i);
-			int right = CalcTextSize (outlet, i);
+			left = Math.Max (left, CalcTextSize (inlets, i));
+			right = Math.Max (right, CalcTextSize (outlets, i));
 		}
+
+		return Math.Max (width, left + right + 2 * PORT_BORDER_SPACING + PORT_INNER_SPACING);
 	}
 
-	int CalcTextSize (String[] array, int idx) {
+	double CalcTextSize (String[] array, int idx) {
 		if (idx >= array.Length) 
 			return 0;
-		return TextWidth (array [i]);
+		return TextWidth (array [idx]);
 	}
 
-	int TextWidth (String str) {
-		TextExtents te = ctx.TextExtents (this.name);
+	double TextWidth (String str) {
+		TextExtents te = ctx.TextExtents (str);
 		return te.Width;
 	}
 		
@@ -151,17 +158,17 @@ public class PatchWidget {
 		ctx.ShowText (inlet);
 	}
 
-	void DrawOutlet (double y, string outlet) {
+	void DrawOutlet (double y, double width, string outlet) {
 		ctx.Color = Constants.DARK_GRAY;
 		ctx.LineWidth = 1;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
-		DrawingPrimitives.DrawCircle(ctx, 110, y, 4);
+		DrawingPrimitives.DrawCircle(ctx, width - 10, y, 4);
 		ctx.Stroke ();
 
 		TextExtents te = ctx.TextExtents (outlet);
-		ctx.MoveTo (102 - te.Width, y + 4);
-		ctx.ShowText (name);
+		ctx.MoveTo (width - 18 - te.Width, y + 4);
+		ctx.ShowText (outlet);
 	}
 
 
@@ -177,8 +184,8 @@ public class EditorCanvas : Gtk.DrawingArea {
 		Realized += (obj, evnt) => SetupEvents ();
 		ui = new PatchWidget (
 		"HSL Color",
-		new String[] { "Hue", "Saturation", "Luminosity" },
-		new String[] { "Color", "RawImage" });
+		new String[] { "Hue", "Saturation", "Luminosity"},
+		new String[] { "Color" });
 
 		ui.X = 40;
 		ui.Y = 40;
@@ -203,7 +210,7 @@ public class EditorCanvas : Gtk.DrawingArea {
 			cc.Save ();
 
 			cc.Translate (ui.X, ui.Y);
-			ui.Draw (cc);
+			ui.Draw (cc, LogEvent);
 
 			cc.Restore ();
         }
