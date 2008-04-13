@@ -19,6 +19,9 @@ internal static class Constants {
 	public static readonly Color DARK_GRAY = new Color(0.2, 0.2, 0.2);
 	public static readonly Color BLACK = new Color (0, 0, 0);
 	public static readonly Color GREEN = new Color (0.1, 0.8, 0.1);
+
+
+	public static readonly Color WIRE_COLOR = new Color (0, 0.5, 1);
 }
 
 internal static class DrawingPrimitives {
@@ -74,6 +77,9 @@ public class PatchWidget {
 	String name;
 	String[] inlets;
 	String[] outlets;
+	bool[] inletConnected;
+	bool[] outletConnected;
+
 	Context ctx;
 
 	public double X { get; set; }
@@ -86,28 +92,46 @@ public class PatchWidget {
 		this.name = name;
 		this.inlets = inlets;
 		this.outlets = outlets;
+		this.inletConnected = new bool [inlets.Length];
+		this.outletConnected = new bool [outlets.Length];
+	}
+
+	public void SetInletConnected (int idx) {
+		inletConnected [idx] = true;
+	}
+
+	public void SetOutletConnected (int idx) {
+		outletConnected [idx] = true;
 	}
 
 	public void Draw (Context ctx, LogHandler log) {
 		this.ctx = ctx;
 		//We must first calculate the layout width based on title size and inlet/outlet sizes
-		if (Width < 1) {
-			Width = CalcWidth ();
-			Height = HEADER_HEIGHT + Math.Max (inlets.Length, outlets.Length) * PORT_HEIGHT + BORDER_ROUND_SIZE;
-
-		}
-
 		DrawEnvelope ();
 
 		DrawHeader ();
 
-		inlets.EachWithIndex ((n, idx) => DrawInlet (FIRST_LINE + idx * PORT_HEIGHT, n));
-		outlets.EachWithIndex ((n, idx) => DrawOutlet (FIRST_LINE + idx * PORT_HEIGHT, n));
+		inlets.EachWithIndex ((n, idx) => DrawInlet (idx, n));
+		outlets.EachWithIndex ((n, idx) => DrawOutlet (idx, n));
 	}
 
 	public bool HitTest (double px, double py) {
 		return 	px >= X && px < (X + Width) &&
 				py >= Y && py < (Y + Height);
+	}
+
+	public PointD GetInletConnectionPosition (int idx) {
+		return new PointD (10, FIRST_LINE + idx * PORT_HEIGHT);
+	}
+
+	public PointD GetOutletConnectionPosition (int idx) {
+		return new PointD (Width - 10, FIRST_LINE + idx * PORT_HEIGHT);
+	}
+
+	public void PerformLayout (Context ctx) {
+		this.ctx = ctx;
+		Width = CalcWidth ();
+		Height = HEADER_HEIGHT + Math.Max (inlets.Length, outlets.Length) * PORT_HEIGHT + BORDER_ROUND_SIZE;
 	}
 
 	void DrawEnvelope () {
@@ -134,24 +158,38 @@ public class PatchWidget {
 		ctx.ShowText (this.name);
 	}
 
-	void DrawInlet (double y, string inlet) {
+	void DrawInlet (int pos, string inlet) {
+		double y = FIRST_LINE + pos * PORT_HEIGHT;
+
 		ctx.Color = Constants.DARK_GRAY;
 		ctx.LineWidth = 1;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
 		DrawingPrimitives.DrawCircle(ctx, 10, y, 4);
+		if (inletConnected [pos]) {
+			ctx.Color = Constants.WIRE_COLOR;
+			ctx.FillPreserve ();
+			ctx.Color = Constants.DARK_GRAY;
+		}
 		ctx.Stroke ();
 
 		ctx.MoveTo (PORT_BORDER_SPACING, y + 4);
 		ctx.ShowText (inlet);
 	}
 
-	void DrawOutlet (double y, string outlet) {
+	void DrawOutlet (int pos, string outlet) {
+		double y = FIRST_LINE + pos * PORT_HEIGHT;
+
 		ctx.Color = Constants.DARK_GRAY;
 		ctx.LineWidth = 1;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
 		DrawingPrimitives.DrawCircle(ctx, Width - 10, y, 4);
+		if (outletConnected [pos]) {
+			ctx.Color = Constants.WIRE_COLOR;
+			ctx.FillPreserve ();
+			ctx.Color = Constants.DARK_GRAY;
+		}
 		ctx.Stroke ();
 
 		TextExtents te = ctx.TextExtents (outlet);
@@ -190,8 +228,39 @@ public class PatchWidget {
 	}
 }
 
+public class ConnectionWidget {
+	PatchWidget source;
+	PatchWidget dest;
+	int sourcePort;
+	int destPort;
+
+	public  ConnectionWidget (PatchWidget source, int sourcePort, PatchWidget dest, int destPort) {
+		this.source = source;
+		this.sourcePort = sourcePort;
+		this.dest = dest;
+		this.destPort = destPort;
+	}
+
+
+	public void Draw (Context ctx, LogHandler log) {
+		ctx.Translate (source.X, source.Y);
+		ctx.MoveTo (source.GetOutletConnectionPosition (sourcePort));
+		ctx.Translate (-source.X, -source.Y);
+
+		ctx.Translate (dest.X, dest.Y);
+		ctx.LineTo (source.GetInletConnectionPosition (destPort));
+
+		ctx.Color = Constants.WIRE_COLOR;
+		ctx.LineWidth = 3;
+		ctx.Stroke ();
+	}
+}
+
+
 public class EditorCanvas : Gtk.DrawingArea {
 	PatchWidget[] patches;
+	ConnectionWidget[] connections;
+	bool firstRun = true;
 
 	public EditorCanvas () {
 		Realized += (obj, evnt) => SetupEvents ();
@@ -210,6 +279,14 @@ public class EditorCanvas : Gtk.DrawingArea {
 			new String[] { "Rounded Value", "Floor", "Ceil Value" });
 		patches[1].X = 200;
 		patches[1].Y = 200;
+
+
+		connections = new ConnectionWidget [1];
+
+		connections [0] = new ConnectionWidget (patches[0], 0, patches[1], 0);
+		patches [0].SetOutletConnected (0);
+		patches [1].SetInletConnected (0);
+
 	}
 
 	void SetupEvents () {
@@ -264,6 +341,19 @@ public class EditorCanvas : Gtk.DrawingArea {
 			cc.Color = Constants.LIGHT_GRAY;
 			cc.Paint();
 
+			if (firstRun) {
+				foreach (var patch in this.patches)
+					patch.PerformLayout (cc);
+				firstRun = false;
+			}
+
+			foreach (var con in this.connections) {
+				cc.Save ();
+				con.Draw (cc, LogEvent);
+				cc.Restore ();
+			}
+
+
 			foreach (var patch in this.patches) {
 				cc.Save ();
 				cc.Translate (patch.X, patch.Y);
@@ -272,7 +362,7 @@ public class EditorCanvas : Gtk.DrawingArea {
 			}
         }
 
-		LogEvent ("Drawn");
+		//LogEvent ("Drawn");
         return true;
     }
 
