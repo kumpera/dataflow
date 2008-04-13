@@ -5,30 +5,35 @@ using Gtk;
 namespace Dataflow.Gui {
 
 public class EditorWindow : Gtk.Window {
-    static void SetResize(Gtk.Paned paned, Gtk.Widget child, bool resize) {
+	Gtk.Button okButton;
+	Gtk.TextView logArea;
+	EditorCanvas canvas;
+		
+
+    void SetResize(Gtk.Paned paned, Gtk.Widget child, bool resize) {
         ((Gtk.Paned.PanedChild)(paned[child])).Resize = resize;
     }
 
-    static void AddOkButton(Gtk.HPaned leftPanel) {
-        Gtk.Button okButton = new Gtk.Button();
+    void AddOkButton(Gtk.HPaned leftPanel) {
+        okButton = new Gtk.Button();
         okButton.Label = "Me clica";
         leftPanel.Add(okButton);
         SetResize(leftPanel, okButton, false);
-        okButton.Clicked += (obj, arg) => Application.Quit();
     }
 
-    static void AddLogArea(Gtk.VPaned middlePanel) {
-        Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow();
+    void AddLogArea(Gtk.VPaned middlePanel) {
+        Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow ();
         scroll.ShadowType = Gtk.ShadowType.In;
 
-        Gtk.TextView logArea = new Gtk.TextView();
-        scroll.Add(logArea);
-        middlePanel.Add(scroll);
+        logArea = new Gtk.TextView ();
+		logArea.Editable = false;
+        scroll.Add (logArea);
+        middlePanel.Add (scroll);
     }
 
-    static void AddDrawingArea(Gtk.VPaned middlePanel) {
-        Gtk.DrawingArea canvas = new EditorCanvas();
-        middlePanel.Add(canvas);
+    void AddDrawingArea(Gtk.VPaned middlePanel) {
+        canvas = new EditorCanvas ();
+        middlePanel.Add (canvas);
         SetResize(middlePanel, canvas, true);
     }
 
@@ -51,7 +56,9 @@ public class EditorWindow : Gtk.Window {
 
         this.Add(leftPanel);
 
-        DeleteEvent += (obj, arg) => Application.Quit();
+		canvas.LogEvent = (text) => logArea.Buffer.InsertAtCursor (text +"\n");
+        okButton.Clicked += (obj, arg) => Application.Quit ();
+        DeleteEvent += (obj, arg) => Application.Quit ();
     }
 }
 }
