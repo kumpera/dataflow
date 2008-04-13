@@ -27,9 +27,7 @@ internal static class DrawingPrimitives {
         cc.Arc(cx, cy, radius, 0, 2 * Math.PI);
 	}
 
-
     internal static void DrawRoundedRectangle (Context cc, double x, double y, double width, double height, double arcRadius) {
- 
         cc.MoveTo (x + arcRadius, y);
         cc.LineTo (x + width - arcRadius, y);
         cc.Arc (x + width - arcRadius, y + arcRadius, arcRadius, -Math.PI / 2 , 0);
@@ -48,7 +46,6 @@ internal static class DrawingPrimitives {
 
 
 	internal static void DrawUpRoundedRectangle (Context cc, double x, double y, double width, double height, double arcRadius) {
-
         cc.MoveTo(x + arcRadius, y);
         cc.LineTo(x + width - arcRadius, y);
         cc.Arc(x + width - arcRadius, y + arcRadius, arcRadius, -Math.PI / 2 , 0);
@@ -114,7 +111,7 @@ public class PatchWidget {
 	}
 
 	void DrawEnvelope () {
-        ctx.Color = Constants.LIGHT_GRAY;
+        ctx.Color = new Color(0.8, 0.8, 0.8, 0.8);
         DrawingPrimitives.DrawRoundedRectangle(ctx, 0, 0, Width, Height, BORDER_ROUND_SIZE);
 		ctx.FillPreserve ();
 		ctx.LineWidth = 1;
@@ -124,7 +121,7 @@ public class PatchWidget {
 
 	void DrawHeader () {
 		//Box
-		ctx.Color = Constants.GREEN;
+		ctx.Color = new Color (0.1, 0.8, 0.1, 0.6);
         DrawingPrimitives.DrawUpRoundedRectangle (ctx, 0, 0, Width, HEADER_HEIGHT, BORDER_ROUND_SIZE);
 		ctx.FillPreserve ();
 		ctx.LineWidth = 1;
@@ -194,17 +191,25 @@ public class PatchWidget {
 }
 
 public class EditorCanvas : Gtk.DrawingArea {
-	PatchWidget ui;
+	PatchWidget[] patches;
 
 	public EditorCanvas () {
 		Realized += (obj, evnt) => SetupEvents ();
-		ui = new PatchWidget (
-		"HSL Color",
-		new String[] { "Hue", "Saturation", "Luminosity"},
-		new String[] { "Color" });
+		patches = new PatchWidget[2];
 
-		ui.X = 40;
-		ui.Y = 40;
+		patches[0] = new PatchWidget (
+			"HSL Color",
+			new String[] { "Hue", "Saturation", "Luminosity"},
+			new String[] { "Color" });
+		patches[0].X = 40;
+		patches[0].Y = 40;
+
+		patches[1] = new PatchWidget (
+			"Round",
+			new String[] { "Value"},
+			new String[] { "Rounded Value", "Floor", "Ceil Value" });
+		patches[1].X = 200;
+		patches[1].Y = 200;
 	}
 
 	void SetupEvents () {
@@ -217,13 +222,18 @@ public class EditorCanvas : Gtk.DrawingArea {
 	double cx, cy;
 
 	protected override bool OnButtonPressEvent (Gdk.EventButton ev) {
-		LogEvent ("button pressed x: " + ev.X + " y " + ev.Y);
-		if (ui.HitTest (ev.X, ev.Y)) { //begin draw sequences
-			dragPatch = ui;
-			cx = ev.X;
-			cy = ev.Y;
-			ox = ui.X;
-			oy = ui.Y;
+		//LogEvent ("button pressed x: " + ev.X + " y " + ev.Y);
+
+		for (var i = patches.Length - 1; i >= 0; --i) {
+			var patch = patches [i];
+			if (patch.HitTest (ev.X, ev.Y)) { //begin draw sequences
+				dragPatch = patch;
+				cx = ev.X;
+				cy = ev.Y;
+				ox = patch.X;
+				oy = patch.Y;
+				break;
+			}
 		}
 	
 		return false;
@@ -254,12 +264,12 @@ public class EditorCanvas : Gtk.DrawingArea {
 			cc.Color = Constants.LIGHT_GRAY;
 			cc.Paint();
 
-			cc.Save ();
-
-			cc.Translate (ui.X, ui.Y);
-			ui.Draw (cc, LogEvent);
-
-			cc.Restore ();
+			foreach (var patch in this.patches) {
+				cc.Save ();
+				cc.Translate (patch.X, patch.Y);
+				patch.Draw (cc, LogEvent);
+				cc.Restore ();
+			}
         }
 
 		LogEvent ("Drawn");
