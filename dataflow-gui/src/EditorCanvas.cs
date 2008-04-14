@@ -12,7 +12,6 @@ static class ArrayExtensions {
 	}
 }
 
-
 internal static class Constants {
 	public static readonly Color LIGHT_GRAY = new Color(0.8, 0.8, 0.8);
 	public static readonly Color MEDIUN_GRAY = new Color(0.6, 0.6, 0.6);
@@ -120,12 +119,14 @@ public class PatchWidget {
 				py >= Y && py < (Y + Height);
 	}
 
+	/*Returns in user space coordinates*/
 	public PointD GetInletConnectionPosition (int idx) {
-		return new PointD (10, FIRST_LINE + idx * PORT_HEIGHT);
+		return new PointD (X + 10, Y + FIRST_LINE + idx * PORT_HEIGHT);
 	}
 
+	/*Returns in user space coordinates*/
 	public PointD GetOutletConnectionPosition (int idx) {
-		return new PointD (Width - 10, FIRST_LINE + idx * PORT_HEIGHT);
+		return new PointD (X + Width - 10, Y + FIRST_LINE + idx * PORT_HEIGHT);
 	}
 
 	public void PerformLayout (Context ctx) {
@@ -241,15 +242,15 @@ public class ConnectionWidget {
 		this.destPort = destPort;
 	}
 
-
 	public void Draw (Context ctx, LogHandler log) {
-		ctx.Translate (source.X, source.Y);
-		ctx.MoveTo (source.GetOutletConnectionPosition (sourcePort));
-		ctx.Translate (-source.X, -source.Y);
+		PointD src = source.GetOutletConnectionPosition (sourcePort);
+		PointD dst = dest.GetInletConnectionPosition (destPort);
 
-		ctx.Translate (dest.X, dest.Y);
-		ctx.LineTo (source.GetInletConnectionPosition (destPort));
+		PointD control1 = new PointD ((src.X + dst.X) / 2, src.Y);
+		PointD control2 = new PointD ((src.X + dst.X) / 2, dst.Y);
 
+		ctx.MoveTo (src);
+		ctx.CurveTo (control1, control2, dst);
 		ctx.Color = Constants.WIRE_COLOR;
 		ctx.LineWidth = 3;
 		ctx.Stroke ();
@@ -352,7 +353,6 @@ public class EditorCanvas : Gtk.DrawingArea {
 				con.Draw (cc, LogEvent);
 				cc.Restore ();
 			}
-
 
 			foreach (var patch in this.patches) {
 				cc.Save ();
