@@ -9,10 +9,13 @@ using Gtk;
 
 namespace Dataflow.Gui {
 
+public delegate void LogHandler (String msg);
+
+
 public class EditorWindow : Gtk.Window {
-	Gtk.Button okButton;
 	Gtk.TextView logArea;
 	EditorCanvas canvas;
+	PatchSelection patchSelection;
 		
 
     void SetResize(Gtk.Paned paned, Gtk.Widget child, bool resize) {
@@ -20,10 +23,14 @@ public class EditorWindow : Gtk.Window {
     }
 
     void AddOkButton(Gtk.HPaned leftPanel) {
-        okButton = new Gtk.Button();
-        okButton.Label = "Me clica";
-        leftPanel.Add(okButton);
-        SetResize(leftPanel, okButton, false);
+        Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow ();
+        scroll.ShadowType = Gtk.ShadowType.In;
+
+		patchSelection = new PatchSelection ();
+		patchSelection.Init (scroll);
+
+		leftPanel.Add (scroll);
+        SetResize(leftPanel, scroll, false);
     }
 
     void AddLogArea(Gtk.VPaned middlePanel) {
@@ -42,17 +49,17 @@ public class EditorWindow : Gtk.Window {
         SetResize(middlePanel, canvas, true);
     }
 
-    public EditorWindow(): base("Dataflow Editor") {
-        DefaultWidth = 671;
-        DefaultHeight = 480;
+    public EditorWindow (): base("Dataflow Editor") {
+        DefaultWidth = 800;
+        DefaultHeight = 600;
 
         Gtk.HPaned leftPanel = new Gtk.HPaned();
-        leftPanel.Position = 75;
+        leftPanel.Position = 180;
 
         AddOkButton(leftPanel);
 
         Gtk.VPaned middlePanel = new Gtk.VPaned();
-        middlePanel.Position = 317;
+        middlePanel.Position = 400;
 
         AddDrawingArea(middlePanel);
         AddLogArea(middlePanel);
@@ -62,8 +69,10 @@ public class EditorWindow : Gtk.Window {
         this.Add(leftPanel);
 
 		canvas.LogEvent = (text) => logArea.Buffer.InsertAtCursor (text +"\n");
-        okButton.Clicked += (obj, arg) => Application.Quit ();
+		patchSelection.LogEvent = (text) => logArea.Buffer.InsertAtCursor (text +"\n");
         DeleteEvent += (obj, arg) => Application.Quit ();
-    }
+ 
+
+   }
 }
 }
