@@ -8,17 +8,6 @@ using Cairo;
 
 namespace Dataflow.Gui {
 
-internal static class Constants {
-	public static readonly Color LIGHT_GRAY = new Color(0.8, 0.8, 0.8);
-	public static readonly Color MEDIUN_GRAY = new Color(0.6, 0.6, 0.6);
-	public static readonly Color DARK_GRAY = new Color(0.2, 0.2, 0.2);
-	public static readonly Color BLACK = new Color (0, 0, 0);
-	public static readonly Color GREEN = new Color (0.1, 0.8, 0.1);
-
-
-	public static readonly Color WIRE_COLOR = new Color (0, 0.5, 1);
-}
-
 internal abstract class CanvasWidget {
 	public abstract void PerformLayout (Context cc);
 
@@ -109,7 +98,7 @@ public class EditorCanvas : Gtk.DrawingArea {
 			cc.Antialias = Antialias.Subpixel;
 
 			//clear background
-			cc.Color = Constants.LIGHT_GRAY;
+			cc.Color = Colors.LIGHT_GRAY;
 			cc.Paint();
 
 			if (firstRun) {
@@ -126,7 +115,6 @@ public class EditorCanvas : Gtk.DrawingArea {
 
 			foreach (var patch in this.patches) {
 				cc.Save ();
-				cc.Translate (patch.X, patch.Y);
 				patch.Draw (cc, LogEvent);
 				cc.Restore ();
 			}

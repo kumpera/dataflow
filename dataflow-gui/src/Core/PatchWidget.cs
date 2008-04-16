@@ -52,7 +52,7 @@ internal class PatchWidget : CanvasWidget {
 
 	public override void Draw (Context ctx, LogHandler log) {
 		this.ctx = ctx;
-
+		ctx.Translate (X, Y);
 		DrawEnvelope ();
 		DrawHeader ();
 
@@ -88,7 +88,7 @@ internal class PatchWidget : CanvasWidget {
         DrawingPrimitives.DrawRoundedRectangle(ctx, 0, 0, Width, Height, BORDER_ROUND_SIZE);
 		ctx.FillPreserve ();
 		ctx.LineWidth = 1;
-		ctx.Color = Constants.BLACK;
+		ctx.Color = Colors.BLACK;
 		ctx.Stroke ();	
 	}
 
@@ -98,7 +98,7 @@ internal class PatchWidget : CanvasWidget {
         DrawingPrimitives.DrawUpRoundedRectangle (ctx, 0, 0, Width, HEADER_HEIGHT, BORDER_ROUND_SIZE);
 		ctx.FillPreserve ();
 		ctx.LineWidth = 1;
-		ctx.Color = Constants.BLACK;
+		ctx.Color = Colors.BLACK;
 		ctx.Stroke ();
 
 		//text
@@ -110,15 +110,15 @@ internal class PatchWidget : CanvasWidget {
 	void DrawInlet (int pos, string inlet) {
 		double y = FIRST_LINE + pos * PORT_HEIGHT;
 
-		ctx.Color = Constants.DARK_GRAY;
+		ctx.Color = Colors.DARK_GRAY;
 		ctx.LineWidth = 1;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
 		DrawingPrimitives.DrawCircle(ctx, 10, y, 4);
 		if (inletConnected [pos]) {
-			ctx.Color = Constants.WIRE_COLOR;
+			ctx.Color = Colors.WIRE_COLOR;
 			ctx.FillPreserve ();
-			ctx.Color = Constants.DARK_GRAY;
+			ctx.Color = Colors.DARK_GRAY;
 		}
 		ctx.Stroke ();
 
@@ -129,15 +129,15 @@ internal class PatchWidget : CanvasWidget {
 	void DrawOutlet (int pos, string outlet) {
 		double y = FIRST_LINE + pos * PORT_HEIGHT;
 
-		ctx.Color = Constants.DARK_GRAY;
+		ctx.Color = Colors.DARK_GRAY;
 		ctx.LineWidth = 1;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
 		DrawingPrimitives.DrawCircle(ctx, Width - 10, y, 4);
 		if (outletConnected [pos]) {
-			ctx.Color = Constants.WIRE_COLOR;
+			ctx.Color = Colors.WIRE_COLOR;
 			ctx.FillPreserve ();
-			ctx.Color = Constants.DARK_GRAY;
+			ctx.Color = Colors.DARK_GRAY;
 		}
 		ctx.Stroke ();
 

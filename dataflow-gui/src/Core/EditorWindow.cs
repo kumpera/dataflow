@@ -15,25 +15,39 @@ public delegate void LogHandler (String msg);
 public class EditorWindow : Gtk.Window {
 	Gtk.TextView logArea;
 	EditorCanvas canvas;
-	PatchSelection patchSelection;
+	ListView listView;
+	Gtk.Button button;
 		
 
     void SetResize(Gtk.Paned paned, Gtk.Widget child, bool resize) {
         ((Gtk.Paned.PanedChild)(paned[child])).Resize = resize;
     }
 
-    void AddOkButton(Gtk.HPaned leftPanel) {
+    void AddPatchList (Gtk.HPaned leftPanel) {
+
+        Gtk.VPaned split = new Gtk.VPaned ();
+        split.Position = 300;
+
+		//listView = ListView.CreateAndBind (split);
+	
+		PatchListView pl = new PatchListView ();
         Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow ();
-        scroll.ShadowType = Gtk.ShadowType.In;
+		scroll.Add (pl);
+		pl.SetModel (new PatchListModel ());
+		split.Add (scroll);
 
-		patchSelection = new PatchSelection ();
-		patchSelection.Init (scroll);
 
-		leftPanel.Add (scroll);
-        SetResize(leftPanel, scroll, false);
-    }
+		button = new Gtk.Button ();
+		button.Label = "Click me";
+		button.Clicked += (obj, evt) => listView.DoStuff ();
+		split.Add (button);
 
-    void AddLogArea(Gtk.VPaned middlePanel) {
+ 
+		leftPanel.Add (split);
+        SetResize(leftPanel, split, false);
+   }
+
+    void AddLogArea (Gtk.VPaned middlePanel) {
         Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow ();
         scroll.ShadowType = Gtk.ShadowType.In;
 
@@ -43,7 +57,7 @@ public class EditorWindow : Gtk.Window {
         middlePanel.Add (scroll);
     }
 
-    void AddDrawingArea(Gtk.VPaned middlePanel) {
+    void AddDrawingArea (Gtk.VPaned middlePanel) {
         canvas = new EditorCanvas ();
         middlePanel.Add (canvas);
         SetResize(middlePanel, canvas, true);
@@ -56,9 +70,9 @@ public class EditorWindow : Gtk.Window {
         Gtk.HPaned leftPanel = new Gtk.HPaned();
         leftPanel.Position = 180;
 
-        AddOkButton(leftPanel);
+        AddPatchList (leftPanel);
 
-        Gtk.VPaned middlePanel = new Gtk.VPaned();
+        Gtk.VPaned middlePanel = new Gtk.VPaned ();
         middlePanel.Position = 400;
 
         AddDrawingArea(middlePanel);
@@ -69,7 +83,8 @@ public class EditorWindow : Gtk.Window {
         this.Add(leftPanel);
 
 		canvas.LogEvent = (text) => logArea.Buffer.InsertAtCursor (text +"\n");
-		patchSelection.LogEvent = (text) => logArea.Buffer.InsertAtCursor (text +"\n");
+		if (listView != null)
+			listView.LogEvent = (text) => logArea.Buffer.InsertAtCursor (text +"\n");
         DeleteEvent += (obj, arg) => Application.Quit ();
  
 

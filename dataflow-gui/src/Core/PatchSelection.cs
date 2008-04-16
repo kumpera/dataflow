@@ -51,14 +51,23 @@ public class PatchSelection {
 		    store.AddNode (new PatchNode ("Rush", "Fly By Night"));
         }		
 	
+
 		nodeView = new NodeView (store);
+
+		CellRendererText render = new Gtk.CellRendererText ();
+
+
 		nodeView.HeadersClickable = true;
 		nodeView.Reorderable = true;
-        nodeView.AppendColumn ("Category", new Gtk.CellRendererText (), "text", 0);
-        nodeView.AppendColumn ("Name", new Gtk.CellRendererText (), "text", 1);
-		panel.Add (nodeView);
+        nodeView.AppendColumn ("Category", render, "text", 0);
+        nodeView.AppendColumn ("Name", render, "text", 1);
 
 		nodeView.Realized += (obj, evnt) => SetupEvents ();
+
+        Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow ();
+        scroll.ShadowType = Gtk.ShadowType.In;
+		scroll.Add (nodeView);
+		panel.Add (scroll);
 	}
 }
 

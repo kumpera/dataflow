@@ -37,7 +37,7 @@ internal class ConnectionWidget  : CanvasWidget {
 
 		ctx.MoveTo (src);
 		ctx.CurveTo (control1, control2, dst);
-		ctx.Color = Constants.WIRE_COLOR;
+		ctx.Color = Colors.WIRE_COLOR;
 		ctx.LineWidth = 3;
 		ctx.Stroke ();
 	}
