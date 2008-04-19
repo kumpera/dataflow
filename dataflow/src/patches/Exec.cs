@@ -16,35 +16,36 @@ namespace Dataflow.Patches {
 public class Exec {
 
     [Inlet(Name="Arguments")]
-    public Inlet<string> args { get; set; }
+    public Inlet<string> Args { get; set; }
 
     [Inlet(Name="Path")]
-    public Inlet<string> path { get; set; }
+    public Inlet<string> Path { get; set; }
 
     [Inlet(Name="Input")]
-    public Inlet<string> stdin { get; set; }
+    public Inlet<string> StdIn { get; set; }
 
     [Outlet(Name="Output")]
-    public Outlet<string> stdout { get; set; }
+    public Outlet<string> StdOut { get; set; }
 
     [Outlet(Name="Error")]
-    public Outlet<string> stderr { get; set; }
+    public Outlet<string> StdErr { get; set; }
 
     [Outlet(Name="Status")]
-    public Outlet<int> status { get; set; }
+    public Outlet<int> Status { get; set; }
     
     public void Init(IPatchContainer container) {
-        args = container.AddInlet<string>("Arguments");
-        path = container.AddInlet<string>("Path");
-        stdin = container.AddInlet<string>("Input");
+        Args = container.AddInlet<string>("Arguments");
+        Path = container.AddInlet<string>("Path");
+        StdIn = container.AddInlet<string>("Input");
 
-        stdout = container.AddOutlet<string>("Output");
-        stderr = container.AddOutlet<string>("Error");
-        status = container.AddOutlet<int>("Status");
+        StdOut = container.AddOutlet<string>("Output");
+        StdErr = container.AddOutlet<string>("Error");
+        Status = container.AddOutlet<int>("Status");
                 
     }
 
     public void Execute() {
+        Status.Value = -1;
     }
   
 }
