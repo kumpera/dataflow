@@ -29,6 +29,9 @@ public class Exec {
 
     [Outlet(Name="Error")]
     public Outlet<string> stderr { get; set; }
+
+    [Outlet(Name="Status")]
+    public Outlet<int> status { get; set; }
     
     public void Init(IPatchContainer container) {
         args = container.AddInlet<string>("Arguments");
@@ -37,6 +40,8 @@ public class Exec {
 
         stdout = container.AddOutlet<string>("Output");
         stderr = container.AddOutlet<string>("Error");
+        status = container.AddOutlet<int>("Status");
+                
     }
 
     public void Execute() {
