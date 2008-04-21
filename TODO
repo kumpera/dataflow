@@ -13,3 +13,5 @@
 * Figure out serialized format for patches / UI <-> Engine comms protocol
 
 * Build the tests into a separate assembly
+
+* Exec patch needs asynchronous I/O (otherwise, performance & memory consumption will be ridiculous)
