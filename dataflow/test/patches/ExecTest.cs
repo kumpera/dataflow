@@ -61,22 +61,88 @@ public class ExecTest {
         return result;
     }
 
+    protected void Run() {
+        Exec exec = new Exec();
+        exec.Init(mockPatchContainer);
+        
+        exec.Execute();
+    }
+
     [Test()]
-    public void ShouldSetStatusToMinusOneWhenExecutableNotFound() {
-        PathIs("/not/existant/executable/file");
+    public void ShouldSetStatusToOneWhenExecutableNotFound() {
+        PathIs("/non/existant/executable/file");
         ArgumentsAre("");
         InputIs("");
         Outlet<int> status = StatusOutlet();
         Outlet<string> output = OutputOutlet();
         Outlet<string> error = ErrorOutlet();
 
-        Exec exec = new Exec();
-        exec.Init(mockPatchContainer);
-        
-        exec.Execute();
+        Run();
         
         Assert.AreEqual(-1, status.Value);
     }
+    
+    [Test()]
+    public void ShouldExecuteShellCommandGracefully() {
+        PathIs("/usr/bin/true");
+        ArgumentsAre("");
+        InputIs("");
+        
+        Outlet<int> status = StatusOutlet();
+        Outlet<string> output = OutputOutlet();
+        Outlet<string> error = ErrorOutlet();
 
+        Run();
+        
+        Assert.AreEqual(0, status.Value);
+    }
+
+    [Test()]
+    public void ShouldExecuteShellCommandWithErrorExitCodeGracefully() {
+        PathIs("/usr/bin/false");
+        ArgumentsAre("");
+        InputIs("");
+        
+        Outlet<int> status = StatusOutlet();
+        Outlet<string> output = OutputOutlet();
+        Outlet<string> error = ErrorOutlet();
+
+        Run();
+        
+        Assert.AreEqual(1, status.Value);
+    }
+    
+    [Test()]
+    public void ShouldExecuteShellCommandWithOutputToStdOut() {
+        PathIs("/bin/echo");
+        ArgumentsAre("hello");
+        InputIs("");
+        
+        Outlet<int> status = StatusOutlet();
+        Outlet<string> output = OutputOutlet();
+        Outlet<string> error = ErrorOutlet();
+
+        Run();
+        
+        Assert.AreEqual(0, status.Value);
+        Assert.AreEqual("hello\n", output.Value);
+    }
+
+    [Test()]
+    public void ShouldExecuteShellCommandWithInputFromStdIn() {
+        PathIs("/bin/cat");
+        ArgumentsAre("");
+        InputIs("hello");
+        
+        Outlet<int> status = StatusOutlet();
+        Outlet<string> output = OutputOutlet();
+        Outlet<string> error = ErrorOutlet();
+
+        Run();
+        
+        Assert.AreEqual(0, status.Value);
+        Assert.AreEqual("hello", output.Value);
+    }
+    
 }
 }

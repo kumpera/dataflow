@@ -45,7 +45,29 @@ public class Exec {
     }
 
     public void Execute() {
-        Status.Value = -1;
+        ProcessStartInfo info = new ProcessStartInfo();
+        info.Arguments = Args.Value;
+        info.FileName = Path.Value;
+        info.CreateNoWindow = true;
+        info.UseShellExecute = false;
+        info.RedirectStandardInput = true;
+        info.RedirectStandardOutput = true;
+        info.RedirectStandardError = true;
+        try {
+            Process proc = Process.Start(info);
+            
+            proc.StandardInput.Write(StdIn.Value);
+            proc.StandardInput.Close();
+            
+            StdErr.Value = proc.StandardError.ReadToEnd();
+            StdOut.Value = proc.StandardOutput.ReadToEnd();
+            
+            proc.WaitForExit();
+
+            Status.Value = proc.ExitCode;            
+        } catch {
+            Status.Value = -1;
+        }
     }
   
 }
