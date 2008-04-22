@@ -16,14 +16,14 @@ internal abstract class CanvasWidget {
 	public abstract void PerformLayout (Context cc);
 
 	public abstract void Draw (Context cc, LogHandler log);
-
-	public abstract bool HitTest (PointD p);
 }
 
 
 public class EditorCanvas : Gtk.DrawingArea {
 	ArrayList<PatchWidget> patches = new ArrayList<PatchWidget> ();
-	ConnectionWidget[] connections;
+	ArrayList<PatchWidget> newPatches = new ArrayList<PatchWidget> ();
+	ArrayList<ConnectionWidget> connections = new ArrayList<ConnectionWidget> ();
+
 	bool firstRun = true;
 	PatchRepository repo;
 
@@ -47,11 +47,14 @@ public class EditorCanvas : Gtk.DrawingArea {
 		pt1.Y = 200;
 		patches.Add (pt1);
 
-		connections = new ConnectionWidget [1];
-		connections [0] = new ConnectionWidget (pt0, 0, pt1, 0);
-		patches [0].SetOutletConnected (0);
-		patches [1].SetInletConnected (0);
+		Connect (pt0, 0, pt1, 0);
+	}
 
+	void Connect (PatchWidget source, int sourcePort, PatchWidget dest, int destPort) {
+		ConnectionWidget con = new ConnectionWidget (source, sourcePort, dest, destPort);
+		source.SetOutletConnected (sourcePort);
+		dest.SetInletConnected (destPort);
+		connections.Add (con);
 	}
 
 	void SetupEvents () {
@@ -65,48 +68,80 @@ public class EditorCanvas : Gtk.DrawingArea {
 			Gdk.DragAction.Move);
 	}
 
+	protected override void OnDragDataReceived (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time) {
+		var patchName = new string (Encoding.UTF8.GetChars (data.Data));
+		var meta = repo.GetPatchByName (patchName);
+		var ins = new string [meta.Inlets.Length];
+		var outs = new string [meta.Outlets.Length];
+
+		meta.Inlets.EachWithIndex ((metaIn, idx) => ins [idx] = metaIn.Name); 
+		meta.Outlets.EachWithIndex ((metaOut, idx) => outs [idx] = metaOut.Name); 
+
+		var pt =  new PatchWidget (meta.Name, ins, outs);
+		pt.X = x;
+		pt.Y = y;
+		newPatches.Add (pt);
+
+		Console.WriteLine("arg string data is {0} x {1} y {2}", patchName, x, y);
+		Console.WriteLine ("--- DONE --- ");
+
+		Gtk.Drag.Finish (context, true, false, time);
+		QueueDraw ();
+	}
+
+	int sourcePort = -1;
 	PatchWidget dragPatch;
-	//TODO replace this crap with a Pointer type
+	//TODO replace this crap with a Point type
 	double ox, oy;
 	double cx, cy;
 
 	protected override bool OnButtonPressEvent (Gdk.EventButton ev) {
 		//LogEvent ("button pressed x: " + ev.X + " y " + ev.Y);
-
+		PointD click = new PointD (ev.X, ev.Y);
 		for (var i = patches.Count - 1; i >= 0; --i) {
 			var patch = patches [i];
-			if (patch.HitTest (new PointD (ev.X, ev.Y))) { //begin draw sequences
-				dragPatch = patch;
-				cx = ev.X;
-				cy = ev.Y;
-				ox = patch.X;
-				oy = patch.Y;
-				break;
-			}
+			if (!patch.HitTest (click))
+				continue; //begin draw sequences
+
+			sourcePort = patch.OutletHitTest (click);
+			dragPatch = patch;
+			cx = ev.X;
+			cy = ev.Y;
+			ox = patch.X;
+			oy = patch.Y;
+			break;
 		}
 	
 		return false;
 	}
 
-	protected override void OnDragDataReceived (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time) {
-		var patchName = new string (Encoding.UTF8.GetChars (data.Data));
-		Console.WriteLine("arg string data is {0}", patchName);
-		Console.WriteLine ("--- DONE --- ");
-		Gtk.Drag.Finish (context, true, false, time);
-	}
-
-
 	protected override bool OnButtonReleaseEvent(Gdk.EventButton ev) {
-		//LogEvent ("button release " + ev);
+		if (sourcePort >= 0) {
+			PointD click = new PointD (cx, cy);
+			foreach (var patch in this.patches) {
+				var idx = -1;
+				if (dragPatch == patch || !patch.HitTest (click) || (idx = patch.InletHitTest (click)) < 0)
+					continue;
+				Connect (dragPatch, sourcePort, patch, idx);
+				break;
+			}
+		}
+
 		dragPatch = null;
+		sourcePort = -1;
+		QueueDraw ();
 		return false;
 	}
 
 	protected override bool OnMotionNotifyEvent(Gdk.EventMotion ev) {
-		//LogEvent ("motion moved " + ev);
 		if (dragPatch != null) {
-			dragPatch.X = ox + (ev.X - cx);
-			dragPatch.Y = oy + (ev.Y - cy);
+			if (sourcePort < 0) {
+				dragPatch.X = ox + (ev.X - cx);
+				dragPatch.Y = oy + (ev.Y - cy);
+			} else {
+				cx = ev.X;
+				cy = ev.Y;
+			}
 			QueueDraw ();
 		}
 		return false;
@@ -129,6 +164,13 @@ public class EditorCanvas : Gtk.DrawingArea {
 				firstRun = false;
 			}
 
+			if (newPatches.Count > 0) {
+				foreach (var patch in this.newPatches)
+					patch.PerformLayout (cc);
+				patches.AddAll (newPatches);
+				newPatches.Clear ();
+			}
+
 			foreach (var con in this.connections) {
 				cc.Save ();
 				con.Draw (cc, LogEvent);
@@ -139,6 +181,22 @@ public class EditorCanvas : Gtk.DrawingArea {
 				cc.Save ();
 				patch.Draw (cc, LogEvent);
 				cc.Restore ();
+			}
+
+			if (sourcePort >= 0) {
+				Color color = Colors.TEMP_WIRE_COLOR;
+				PointD click = new PointD (cx, cy);
+				foreach (var patch in this.patches) {
+					var idx = -1;
+					if (dragPatch == patch || !patch.HitTest (click) || (idx = patch.InletHitTest (click)) < 0)
+						continue;
+					color = Colors.WIRE_COLOR;
+					break;
+				}
+
+				ConnectionWidget.DrawConnection (
+					cc,
+					dragPatch.GetOutletConnectionPosition (sourcePort), new PointD (cx, cy), color);
 			}
         } finally {
 			((IDisposable)cc.Target).Dispose ();

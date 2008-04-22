@@ -18,6 +18,7 @@ internal static class Colors {
 	public static readonly Color YELLOW = new Color (0.8, 0.8, 0.1);
 
 	public static readonly Color WIRE_COLOR = new Color (0, 0.5, 1);
+	public static readonly Color TEMP_WIRE_COLOR = new Color (0.4, 0.6, 0.7, 0.5);
 
 	public static readonly Color SOFT_MAGENTA = new Color (0.8, 0.4, 0.1);
 	public static readonly Color STRONG_MAGENTA = new Color (0.6, 0.2, 0.1);

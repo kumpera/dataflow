@@ -20,6 +20,13 @@ internal class PatchWidget : CanvasWidget {
 	const int PORT_BORDER_SPACING = 17;
 	const int PORT_INNER_SPACING = 8;
 
+	const int PORT_CIRCLE_RADIUS = 4;
+	const int PORT_LINE_WIDTH = 1;
+
+	const int PORT_CIRCLE_FULL_RADIUS = PORT_CIRCLE_RADIUS + PORT_LINE_WIDTH;
+
+
+
 	String name;
 	String[] inlets;
 	String[] outlets;
@@ -60,18 +67,43 @@ internal class PatchWidget : CanvasWidget {
 		outlets.EachWithIndex ((n, idx) => DrawOutlet (idx, n));
 	}
 
-	public override bool HitTest (PointD p) {
+	public bool HitTest (PointD p) {
 		return 	p.X >= X && p.X < (X + Width) &&
 				p.Y >= Y && p.Y < (Y + Height);
 	}
 
+	static double Square (double a) {
+		return a * a;
+	}
+
+	static bool InCircleRange (ref PointD center, ref PointD test, double radius) {
+		double dist = Math.Sqrt ( Square (center.X - test.X) + Square (center.Y - test.Y));
+		return dist <= radius;
+	}
+
+	public int InletHitTest (PointD center) {
+		for (int i = 0; i < inlets.Length; ++i) {
+			PointD p = GetInletConnectionPosition (i);
+			if (InCircleRange (ref center, ref p, PORT_CIRCLE_FULL_RADIUS))
+				return i;
+		}
+		return -1;
+	}
+
+	public int OutletHitTest (PointD center) {
+		for (int i = 0; i < outlets.Length; ++i) {
+			PointD p = GetOutletConnectionPosition (i);
+			if (InCircleRange (ref center, ref p, PORT_CIRCLE_FULL_RADIUS))
+				return i;
+		}
+		return -1;
+	}
 
 	public override void PerformLayout (Context ctx) {
 		this.ctx = ctx;
 		Width = CalcWidth ();
 		Height = HEADER_HEIGHT + Math.Max (inlets.Length, outlets.Length) * PORT_HEIGHT + BORDER_ROUND_SIZE;
 	}
-
 
 	/*Returns in user space coordinates*/
 	public PointD GetInletConnectionPosition (int idx) {
@@ -111,10 +143,10 @@ internal class PatchWidget : CanvasWidget {
 		double y = FIRST_LINE + pos * PORT_HEIGHT;
 
 		ctx.Color = Colors.DARK_GRAY;
-		ctx.LineWidth = 1;
+		ctx.LineWidth = PORT_LINE_WIDTH;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
-		DrawingPrimitives.DrawCircle(ctx, 10, y, 4);
+		DrawingPrimitives.DrawCircle(ctx, 10, y, PORT_CIRCLE_RADIUS);
 		if (inletConnected [pos]) {
 			ctx.Color = Colors.WIRE_COLOR;
 			ctx.FillPreserve ();
@@ -130,10 +162,10 @@ internal class PatchWidget : CanvasWidget {
 		double y = FIRST_LINE + pos * PORT_HEIGHT;
 
 		ctx.Color = Colors.DARK_GRAY;
-		ctx.LineWidth = 1;
+		ctx.LineWidth = PORT_LINE_WIDTH;
 		ctx.SetFontSize (PORT_FONT_SIZE);
 
-		DrawingPrimitives.DrawCircle(ctx, Width - 10, y, 4);
+		DrawingPrimitives.DrawCircle(ctx, Width - 10, y, PORT_CIRCLE_RADIUS);
 		if (outletConnected [pos]) {
 			ctx.Color = Colors.WIRE_COLOR;
 			ctx.FillPreserve ();

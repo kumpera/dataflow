@@ -24,20 +24,19 @@ internal class ConnectionWidget  : CanvasWidget {
 	public override void PerformLayout (Context ctx) {
 	}
 
-	public override bool HitTest (PointD p) {
-		throw new Exception ("not implemented");
+	public override void Draw (Context ctx, LogHandler log) {
+		DrawConnection (ctx, 
+			source.GetOutletConnectionPosition (sourcePort),
+			dest.GetInletConnectionPosition (destPort), Colors.WIRE_COLOR);
 	}
 
-	public override void Draw (Context ctx, LogHandler log) {
-		PointD src = source.GetOutletConnectionPosition (sourcePort);
-		PointD dst = dest.GetInletConnectionPosition (destPort);
-
+	public static void DrawConnection (Context ctx, PointD src, PointD dst, Color color) {
 		PointD control1 = new PointD ((src.X + dst.X) / 2, src.Y);
 		PointD control2 = new PointD ((src.X + dst.X) / 2, dst.Y);
 
 		ctx.MoveTo (src);
 		ctx.CurveTo (control1, control2, dst);
-		ctx.Color = Colors.WIRE_COLOR;
+		ctx.Color = color;
 		ctx.LineWidth = 3;
 		ctx.Stroke ();
 	}
