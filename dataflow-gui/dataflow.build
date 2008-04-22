@@ -31,17 +31,16 @@ See AUTHORS and LICENSE for details.
 
       <pkg-references failonempty="true">
         <package name="gtk-sharp-2.0"/>
-        <!--<package name="mono-cairo"/> -->
       </pkg-references>
 
       <references failonempty="true">
         <include name="lib/*.dll"/>
+		<include name="../bin/dataflow.exe"/>
       </references>
-
     </csc>
   </target>
 
-   <target name="run" depends="compile" description="run gui">
+   <target name="run" depends="compile, internal:copy-dependencies" description="run gui">
     <exec program="${exename}" managed="true">
     </exec>
   </target>
@@ -73,8 +72,7 @@ See AUTHORS and LICENSE for details.
 
   <target name="internal:copy-dependencies" description="copies libs to output dir">
     <copy todir="${bindir}">
-      <fileset basedir="${appname}/lib">
-        <include name="*.dll"/>
+      <fileset basedir="../bin">
         <include name="*.exe"/>
       </fileset>
     </copy>
