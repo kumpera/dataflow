@@ -17,11 +17,11 @@ internal class InletMetaData {
     PropertyInfo property;
 	InletAttribute attrs;
 
-    public InletMetaData(PatchMetaClass container, PropertyInfo property) {
+    public InletMetaData (PatchMetaClass container, PropertyInfo property) {
         this.container = container;
         this.property = property;
         this.attrs = property.GetCustomAttribute<InletAttribute> ();
-        Name = attrs.Name != null ? attrs.Name : property.Name;
+        Name = attrs.Name ?? property.Name;
     }
 
     public string Name {
@@ -44,7 +44,7 @@ internal class OutletMetaData {
         this.container = container;
         this.property = property;
         this.	attrs = property.GetCustomAttribute<OutletAttribute> ();
-        Name = attrs.Name != null ? attrs.Name : property.Name;
+        Name = attrs.Name ?? property.Name;
     }
 
     public string Name {
@@ -81,10 +81,16 @@ public class PatchMetaClass {
         this.inlets = ins.ToArray();
         this.outlets = outs.ToArray();
 
-        Name = attrs.Name != null ? attrs.Name : type.Name;
+        Name = attrs.Name ?? type.Name;
+		Category = attrs.Category ?? "Generic";
     }
 
     public string Name {
+        get;
+        private set;
+    }
+
+    public string Category {
         get;
         private set;
     }
