@@ -12,7 +12,7 @@ using Dataflow.Core.Extensions;
 
 namespace Dataflow.Core {
 
-internal class InletMetaData {
+public class InletMetaData {
     PatchMetaClass container;
     PropertyInfo property;
 	InletAttribute attrs;
@@ -35,7 +35,7 @@ internal class InletMetaData {
 	}
 }
 
-internal class OutletMetaData {
+public class OutletMetaData {
     PatchMetaClass container;
     PropertyInfo property;
 	OutletAttribute attrs;
@@ -95,13 +95,13 @@ public class PatchMetaClass {
         private set;
     }
 
-    internal InletMetaData[] Inlets {
+    public InletMetaData[] Inlets {
         get {
             return this.inlets;
         }
     }
 
-    internal OutletMetaData[] Outlets {
+    public OutletMetaData[] Outlets {
         get {
             return this.outlets;
         }
