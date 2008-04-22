@@ -67,7 +67,7 @@ See AUTHORS and LICENSE for details.
         <include name="*.exe"/>
       </fileset>
     </copy>
-  </target>    
+  </target>
 
   <target name="internal:clear-test-results" description="clear test results dir">
     <delete dir="${bindir}/test-results" failonerror="true" />

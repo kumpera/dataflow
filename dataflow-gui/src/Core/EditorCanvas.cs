@@ -5,6 +5,9 @@
 */
 using System;
 using Cairo;
+using System.Text;
+
+using Dataflow.Core;
 
 namespace Dataflow.Gui {
 
@@ -21,9 +24,11 @@ public class EditorCanvas : Gtk.DrawingArea {
 	PatchWidget[] patches;
 	ConnectionWidget[] connections;
 	bool firstRun = true;
+	PatchRepository repo;
 
-	public EditorCanvas () {
+	public EditorCanvas (PatchRepository repo) {
 		Realized += (obj, evnt) => SetupEvents ();
+		this.repo = repo;
 
 		patches = new PatchWidget[2];
 		patches[0] = new PatchWidget (
@@ -49,6 +54,13 @@ public class EditorCanvas : Gtk.DrawingArea {
 
 	void SetupEvents () {
 		GdkWindow.Events |= Gdk.EventMask.ButtonMotionMask | Gdk.EventMask.ButtonPressMask | Gdk.EventMask.ButtonReleaseMask;
+		//TODO move drop flavor to somewhere else
+		Console.WriteLine ("SETUP");
+		Gtk.Drag.DestSet (
+			this,
+			Gtk.DestDefaults.Drop | Gtk.DestDefaults.Motion,
+			Hyena.Data.Gui.ListView<PatchInfo>.DragDropDestEntries, 
+			Gdk.DragAction.Move);
 	}
 
 	PatchWidget dragPatch;
@@ -73,6 +85,13 @@ public class EditorCanvas : Gtk.DrawingArea {
 	
 		return false;
 	}
+
+	protected override void OnDragDataReceived (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time) {
+		Console.WriteLine("arg string data is {0}", new string (Encoding.UTF8.GetChars (data.Data)));
+		Console.WriteLine ("--- DONE --- ");
+		Gtk.Drag.Finish (context, true, false, time);
+	}
+
 
 	protected override bool OnButtonReleaseEvent(Gdk.EventButton ev) {
 		//LogEvent ("button release " + ev);

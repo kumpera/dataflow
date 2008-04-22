@@ -6,6 +6,8 @@
 using System;
 using Gtk;
 
+using Dataflow.Core;
+
 
 namespace Dataflow.Gui {
 
@@ -17,6 +19,7 @@ public class EditorWindow : Gtk.Window {
 	EditorCanvas canvas;
 	ListView listView;
 	Gtk.Button button;
+	PatchRepository repo = new PatchRepository ();
 		
 
     void SetResize(Gtk.Paned paned, Gtk.Widget child, bool resize) {
@@ -33,16 +36,14 @@ public class EditorWindow : Gtk.Window {
 		PatchListView pl = new PatchListView ();
         Gtk.ScrolledWindow scroll = new Gtk.ScrolledWindow ();
 		scroll.Add (pl);
-		pl.SetModel (new PatchListModel ());
+		pl.SetModel (new PatchListModel (repo));
 		split.Add (scroll);
-
 
 		button = new Gtk.Button ();
 		button.Label = "Click me";
 		button.Clicked += (obj, evt) => listView.DoStuff ();
 		split.Add (button);
 
- 
 		leftPanel.Add (split);
         SetResize(leftPanel, split, false);
    }
@@ -58,7 +59,7 @@ public class EditorWindow : Gtk.Window {
     }
 
     void AddDrawingArea (Gtk.VPaned middlePanel) {
-        canvas = new EditorCanvas ();
+        canvas = new EditorCanvas (repo);
         middlePanel.Add (canvas);
         SetResize(middlePanel, canvas, true);
     }

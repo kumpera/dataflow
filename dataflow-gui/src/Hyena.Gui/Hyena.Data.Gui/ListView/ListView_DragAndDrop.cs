@@ -49,7 +49,7 @@ namespace Hyena.Data.Gui
             ListViewDragDropTarget.ModelSelection
         };
         
-        protected static TargetEntry [] DragDropDestEntries {
+        internal static TargetEntry [] DragDropDestEntries {
             get { return drag_drop_dest_entries; }
         }
         
