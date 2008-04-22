@@ -34,6 +34,7 @@ See AUTHORS and LICENSE for details.
       </pkg-references>
 
       <references failonempty="true">
+        <include name="Mono.C5.dll"/>
         <include name="lib/*.dll"/>
 		<include name="../bin/dataflow.exe"/>
       </references>

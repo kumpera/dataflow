@@ -6,6 +6,7 @@
 using System;
 using Cairo;
 using System.Text;
+using C5;
 
 using Dataflow.Core;
 
@@ -21,7 +22,7 @@ internal abstract class CanvasWidget {
 
 
 public class EditorCanvas : Gtk.DrawingArea {
-	PatchWidget[] patches;
+	ArrayList<PatchWidget> patches = new ArrayList<PatchWidget> ();
 	ConnectionWidget[] connections;
 	bool firstRun = true;
 	PatchRepository repo;
@@ -30,23 +31,24 @@ public class EditorCanvas : Gtk.DrawingArea {
 		Realized += (obj, evnt) => SetupEvents ();
 		this.repo = repo;
 
-		patches = new PatchWidget[2];
-		patches[0] = new PatchWidget (
+		var pt0 =  new PatchWidget (
 			"HSL Color",
 			new String[] { "Hue", "Saturation", "Luminosity"},
 			new String[] { "Color" });
-		patches[0].X = 40;
-		patches[0].Y = 40;
+		pt0.X = 40;
+		pt0.Y = 40;
+		patches.Add (pt0);
 
-		patches[1] = new PatchWidget (
+		var pt1 = new PatchWidget (
 			"Round",
 			new String[] { "Value"},
 			new String[] { "Rounded Value", "Floor", "Ceil Value" });
-		patches[1].X = 200;
-		patches[1].Y = 200;
+		pt1.X = 200;
+		pt1.Y = 200;
+		patches.Add (pt1);
 
 		connections = new ConnectionWidget [1];
-		connections [0] = new ConnectionWidget (patches[0], 0, patches[1], 0);
+		connections [0] = new ConnectionWidget (pt0, 0, pt1, 0);
 		patches [0].SetOutletConnected (0);
 		patches [1].SetInletConnected (0);
 
@@ -71,7 +73,7 @@ public class EditorCanvas : Gtk.DrawingArea {
 	protected override bool OnButtonPressEvent (Gdk.EventButton ev) {
 		//LogEvent ("button pressed x: " + ev.X + " y " + ev.Y);
 
-		for (var i = patches.Length - 1; i >= 0; --i) {
+		for (var i = patches.Count - 1; i >= 0; --i) {
 			var patch = patches [i];
 			if (patch.HitTest (new PointD (ev.X, ev.Y))) { //begin draw sequences
 				dragPatch = patch;
@@ -87,7 +89,8 @@ public class EditorCanvas : Gtk.DrawingArea {
 	}
 
 	protected override void OnDragDataReceived (Gdk.DragContext context, int x, int y, Gtk.SelectionData data, uint info, uint time) {
-		Console.WriteLine("arg string data is {0}", new string (Encoding.UTF8.GetChars (data.Data)));
+		var patchName = new string (Encoding.UTF8.GetChars (data.Data));
+		Console.WriteLine("arg string data is {0}", patchName);
 		Console.WriteLine ("--- DONE --- ");
 		Gtk.Drag.Finish (context, true, false, time);
 	}
