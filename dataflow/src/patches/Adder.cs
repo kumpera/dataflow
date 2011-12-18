@@ -13,10 +13,10 @@ namespace Dataflow.Patches {
 public class Adder {
     [Inlet(Name="Left")]
     public Inlet<int> left { get; set; }
-    
+
     [Inlet(Name="Right")]
     public Inlet<int> right { get; set; }
-    
+
     [Outlet(Name="Result")]
     public Outlet<int> result { get; set; }
 

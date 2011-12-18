@@ -4,7 +4,7 @@
 #
 # See AUTHORS and LICENSE for details.
 
-if [ `which astyle` ]; then 
+if [ `which astyle` ]; then
   find . -name *.cs | xargs astyle --mode=cs -U -l -p --style=kr
   exit $?
 

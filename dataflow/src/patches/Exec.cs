@@ -32,7 +32,7 @@ public class Exec {
 
     [Outlet(Name="Status")]
     public Outlet<int> Status { get; set; }
-    
+
     public void Init(IPatchContainer container) {
         Args = container.AddInlet<string>("Arguments");
         Path = container.AddInlet<string>("Path");
@@ -41,7 +41,7 @@ public class Exec {
         StdOut = container.AddOutlet<string>("Output");
         StdErr = container.AddOutlet<string>("Error");
         Status = container.AddOutlet<int>("Status");
-                
+
     }
 
     public void Execute() {
@@ -55,21 +55,21 @@ public class Exec {
         info.RedirectStandardError = true;
         try {
             Process proc = Process.Start(info);
-            
+
             proc.StandardInput.Write(StdIn.Value);
             proc.StandardInput.Close();
-            
+
             StdErr.Value = proc.StandardError.ReadToEnd();
             StdOut.Value = proc.StandardOutput.ReadToEnd();
-            
+
             proc.WaitForExit();
 
-            Status.Value = proc.ExitCode;            
+            Status.Value = proc.ExitCode;
         } catch {
             Status.Value = -1;
         }
     }
-  
+
 }
 
 }
